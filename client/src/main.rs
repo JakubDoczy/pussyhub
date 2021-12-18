@@ -1,52 +1,137 @@
-use anyhow::Result;
-use std::process::Command;
-use structopt::StructOpt;
-use wasm_run::prelude::*;
+mod components;
+use crate::components::home::Home;
 
-#[wasm_run::main("app", pre_build = pre_build, other_cli_commands = other_cli_commands)]
-#[derive(StructOpt, Debug)]
-enum Cli {
-    UpdateCss,
+use yew::{html, Component, Html, classes, ComponentLink, ShouldRender};
+use yew_router::{
+    agent::{RouteAgentDispatcher, RouteRequest},
+    router::Router,
+    Switch,
+};
+use yewprint::{IconName, Menu, MenuItem, MenuDivider};
+
+pub struct App {
+    link: ComponentLink<Self>,
+    dark_theme: bool,
+    route_dispatcher: RouteAgentDispatcher,
 }
 
-fn pre_build(args: &DefaultBuildArgs, profile: BuildProfile, command: &mut Command) -> Result<()> {
-    let package = args.frontend_package();
+pub enum Msg {
+    ToggleLight,
+    GoToMenu(AppRoute),
+}
 
-    download_blueprint_css(package, false)?;
+impl Component for App {
+    type Message = Msg;
+    type Properties = ();
 
-    match profile {
-        BuildProfile::Profiling | BuildProfile::Release => {
-            command.args(&["--features", "wee_alloc"]);
-        }
-        BuildProfile::Dev => {
-            command.args(&["--features", "console_error_panic_hook"]);
+    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        App {
+            dark_theme: web_sys::window()
+                .and_then(|x| x.match_media("(prefers-color-scheme: dark)").ok().flatten())
+                .map(|x| x.matches())
+                .unwrap_or(true),
+            link,
+            route_dispatcher: RouteAgentDispatcher::new(),
         }
     }
 
-    Ok(())
-}
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::ToggleLight => self.dark_theme ^= true,
+            Msg::GoToMenu(route) => {
+                self.route_dispatcher
+                    .send(RouteRequest::ChangeRoute(route.into()));
+            }
+        }
+        true
+    }
 
-fn other_cli_commands(cli: Cli, _metadata: &Metadata, package: &Package) -> Result<()> {
-    match cli {
-        Cli::UpdateCss => {
-            download_blueprint_css(package, true)?;
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        false
+    }
+
+    fn view(&self) -> Html {
+        let go_to_theme_label = if !self.dark_theme {
+            "Light theme"
+        } else {
+            "Dark theme"
+        };
+        let go_to_theme_icon = if !self.dark_theme {
+            IconName::Flash
+        } else {
+            IconName::Moon
+        };
+
+        html! {
+            <div class={classes!("ph-root", self.dark_theme.then(|| "bp3-dark"))}>
+                <div class="ph-app">
+                    <div class="ph-nav-wrapper">
+                        <div class="ph-nav">
+                            <div class="ph-nav-title">
+                                <a href="/">
+                                    <img src="cat.svg" class="ph-logo" />
+                                </a>
+                                <div>
+                                    <div class={classes!("bp3-navbar-heading", "ph-heading")}>
+                                        {"PussyHub"}
+                                    </div>
+                                    <a
+                                        class="bp3-text-muted"
+                                        href="https://github.com/JakubDoczy/pussyhub"
+                                        target="_blank"
+                                    >
+                                        <small>{"View on GitHub"}</small>
+                                    </a>
+                                </div>
+                            </div>
+                            <Menu>
+                                <MenuItem
+                                    text={html!(go_to_theme_label)}
+                                    onclick={self.link.callback(|_| Msg::ToggleLight)}
+                                    icon={go_to_theme_icon}
+                                />
+                                <MenuDivider />
+                                <MenuItem
+                                    text={html!("Home")}
+                                    onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))}
+                                />
+                                <MenuItem
+                                    text={html!("Test")}
+                                    onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Test(42)))}
+                                />
+                            </Menu>
+                        </div>
+                    </div>
+                    <main class="ph-content-wrapper" role="main">
+                        <div class="ph-page">
+                            <Router<AppRoute, ()>
+                                render=Router::render(|switch: AppRoute| {
+                                    match switch {
+                                        AppRoute::Test(n) => html! { <h1> {"Test: "} {n} </h1> },
+                                        AppRoute::Home => html! { <Home /> },
+                                        AppRoute::PageNotFound => html! { <h1> {"Page not found"} </h1> }
+                                    }
+                                })
+                            />
+                        </div>
+                    </main>
+                </div>
+            </div>
         }
     }
-
-    Ok(())
 }
 
-fn download_blueprint_css(package: &Package, force: bool) -> Result<()> {
-    let css_path = package
-        .manifest_path
-        .parent()
-        .unwrap()
-        .join("static")
-        .join("blueprint.css");
+#[derive(Debug, Copy, Clone, Switch)]
+pub enum AppRoute {
+    #[to = "/test/{n}"]
+    Test (u64),
+    #[to = "/page-not-found"]
+    PageNotFound,
+    #[to = "/!"]
+    Home,
+}
 
-    if force || !css_path.exists() {
-        yewprint_css::download_css(&css_path)?;
-    }
 
-    Ok(())
+fn main() {
+    yew::start_app::<App>();
 }
