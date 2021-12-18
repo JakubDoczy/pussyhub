@@ -5,7 +5,8 @@ CREATE TABLE users (
   username TEXT NOT NULL,
   email TEXT NOT NULL,
   description TEXT,
-  picture_url TEXT
+  picture_url TEXT,
+  hash TEXT
 );
 
 CREATE TABLE videos (
