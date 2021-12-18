@@ -1,13 +1,13 @@
 mod components;
 use crate::components::home::Home;
 
-use yew::{html, Component, Html, classes, ComponentLink, ShouldRender};
+use yew::{classes, html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{
     agent::{RouteAgentDispatcher, RouteRequest},
     router::Router,
     Switch,
 };
-use yewprint::{IconName, Menu, MenuItem, MenuDivider};
+use yewprint::{IconName, Menu, MenuDivider, MenuItem};
 
 pub struct App {
     link: ComponentLink<Self>,
@@ -124,13 +124,12 @@ impl Component for App {
 #[derive(Debug, Copy, Clone, Switch)]
 pub enum AppRoute {
     #[to = "/test/{n}"]
-    Test (u64),
+    Test(u64),
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]
     Home,
 }
-
 
 fn main() {
     yew::start_app::<App>();
