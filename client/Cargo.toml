@@ -1,0 +1,26 @@
+[package]
+name = "run"
+version = "0.1.0"
+authors = ["Otakar Hirš <otakar.hirs@gmail.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+# Package for Rust and WASM
+wasm-run = "0.9"
+
+# Used to make the CLI that will package our web app
+structopt = "0.3"
+
+# Helper to download blueprint's CSS
+yewprint-css = "0.1.0"
+
+[workspace]
+# Our actual web app
+members = ["app"]
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
