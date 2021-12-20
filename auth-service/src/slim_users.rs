@@ -1,19 +1,21 @@
 use anyhow::Result;
 use sqlx::{Executor, PgPool};
 use std::sync::Arc;
+use tokens::Role;
+
+mod tokens;
 
 
 #[derive(Debug)]
 pub struct SlimUser {
     email: String,
-    hash: String
+    hash: String,
+    role: Role,
 }
-
 
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
 }
-
 
 impl PostgresUserRepo {
     pub fn new(pg_pool: Arc<PgPool>) -> Self {
@@ -23,7 +25,7 @@ impl PostgresUserRepo {
     pub async fn get_slim_user(&self, email: &str) -> Result<SlimUser> {
         let rec = sqlx::query!(
             r#"
-            SELECT hash FROM users WHERE email = $1
+            SELECT hash, role FROM users WHERE email = $1
             "#,
             email
         )
@@ -32,8 +34,7 @@ impl PostgresUserRepo {
 
         Ok(SlimUser {
             email: email.to_string(),
-            hash: rec.hash
+            hash: rec.hash,
         })
     }
 }
-
