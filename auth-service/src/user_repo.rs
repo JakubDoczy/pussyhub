@@ -4,6 +4,7 @@ use std::sync::Arc;
 use shared_lib::token_validation::{SlimUser, Role};
 
 
+#[derive(Clone)]
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
 }
@@ -13,22 +14,35 @@ impl PostgresUserRepo {
         Self { pg_pool }
     }
 
-    pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String)> {
+    pub async fn get_slim_user(&self, email: &str) -> Result<Option<(SlimUser, String)>> {
         let rec = sqlx::query!(
             r#"
-            SELECT id, username, role, hash FROM users WHERE email = $1
+            SELECT id, username, password, user_role as "user_role: Role" FROM users WHERE email = $1
             "#,
             email
         )
         .fetch_one(&*self.pg_pool)
-        .await?;
+        .await;
 
-        Ok((SlimUser {
-            user_id: rec.id,
-            username: rec.username,
-            email: email.to_string(),
-            role: rec.role,
-            
-        }, rec.passwd_hash))
+        match rec {
+            Ok(user) => {
+                Ok(Some((SlimUser {
+                    user_id: user.id,
+                    username: user.username,
+                    email: email.to_string(),
+                    role: user.user_role,
+                    
+                }, user.password)))
+            }
+            Err(e) => {
+                match e {
+
+                    sqlx::Error::RowNotFound => {
+                        Ok(None)
+                    }
+                    _ => Err(anyhow::anyhow!(format!("{:?}", e)))
+                }
+            }
+        }
     }
 }

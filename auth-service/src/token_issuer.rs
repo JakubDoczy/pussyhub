@@ -3,26 +3,15 @@ use chrono::Utc;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use shared_lib::token_validation::{ALGORITHM, SlimUser};
+use shared_lib::token_validation::{ALGORITHM, Claims, SlimUser};
 
 const DEFAULT_VALIDITY_DURATION_SEC: i64 = 24 * 60 * 60;
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Claims {
-    // Registered claims, defined by standard
-    //pub sub: String, // subject
-    pub iat: usize, // issued at
-    pub exp: usize, // expiration date
-
-    pub user: SlimUser,
-}
 
 fn issue_token(
     user: SlimUser,
     private_key: &EncodingKey,
 ) -> Result<String, jsonwebtoken::errors::Error> {
     let body = Claims {
-        //sub: user_email.to_string(), // FIXME: this conversion is probably not necessary
         iat: Utc::now().timestamp() as usize,
         exp: (Utc::now().timestamp() + DEFAULT_VALIDITY_DURATION_SEC) as usize,
         user,
@@ -31,6 +20,7 @@ fn issue_token(
     encode(&Header::new(ALGORITHM), &body, private_key)
 }
 
+#[derive(Clone)]
 pub struct TokenIssuer {
     private_key: EncodingKey,
 }
@@ -44,7 +34,7 @@ impl TokenIssuer {
         Ok(issuer)
     }
 
-    pub fn issue_token(self, user: SlimUser) -> Result<String, jsonwebtoken::errors::Error> {
+    pub fn issue_token(&self, user: SlimUser) -> Result<String, jsonwebtoken::errors::Error> {
         issue_token(user, &self.private_key)
     }
 }
