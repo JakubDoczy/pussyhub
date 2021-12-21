@@ -15,5 +15,5 @@ pub enum ServiceError {
     AuthError(AuthError),
 
     #[error("Unspecified internal error.")]
-    InternalServerError,
+    InternalServerError // Hide specifics
 }

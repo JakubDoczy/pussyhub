@@ -1,17 +1,8 @@
 use anyhow::Result;
 use sqlx::{Executor, PgPool};
 use std::sync::Arc;
-use tokens::Role;
+use shared_lib::token_validation::{SlimUser, Role};
 
-mod tokens;
-
-
-#[derive(Debug)]
-pub struct SlimUser {
-    email: String,
-    hash: String,
-    role: Role,
-}
 
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
@@ -22,19 +13,22 @@ impl PostgresUserRepo {
         Self { pg_pool }
     }
 
-    pub async fn get_slim_user(&self, email: &str) -> Result<SlimUser> {
+    pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String)> {
         let rec = sqlx::query!(
             r#"
-            SELECT hash, role FROM users WHERE email = $1
+            SELECT id, username, role, hash FROM users WHERE email = $1
             "#,
             email
         )
         .fetch_one(&*self.pg_pool)
         .await?;
 
-        Ok(SlimUser {
+        Ok((SlimUser {
+            user_id: rec.id,
+            username: rec.username,
             email: email.to_string(),
-            hash: rec.hash,
-        })
+            role: rec.role,
+            
+        }, rec.passwd_hash))
     }
 }
