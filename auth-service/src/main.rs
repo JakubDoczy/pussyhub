@@ -1,5 +1,7 @@
 use std::env;
-use std::sync::Arc;
+use std::sync::{Mutex, Arc};
+
+use serde_json;
 
 use ::dotenv::dotenv;
 
@@ -34,20 +36,27 @@ mod user_repo;
 
 
 #[derive(Clone)]
-pub struct AuthData {
+pub struct ApplicationData {
     pub token_issuer: TokenIssuer,
     pub user_repo: PostgresUserRepo
 }
 
 
-pub async fn auth_handler(service_data: web::Data<AuthData>, provided_payload: web::Json<AuthPayload>) -> HttpResponse {
+/// Example:
+/// curl --header "Content-Type: application/json" \
+///  --request POST \
+///  --data '{"email":"hehe","password":"pwd"}' \
+///  127.0.0.1:8089/auth
+pub async fn auth_handler(service_data: web::Data<Mutex<ApplicationData>>, provided_payload: web::Json<AuthPayload>) -> HttpResponse {
     
     let auth_payload = provided_payload.into_inner();
 
-    match service_data.user_repo.get_slim_user(&auth_payload.email).await {
+
+
+    match service_data.lock().unwrap().user_repo.get_slim_user(&auth_payload.email).await {
         Ok(Some((slim_user, hash))) => {
             if hash == auth_payload.password {
-                let token_result = service_data.token_issuer.issue_token(slim_user); 
+                let token_result = service_data.lock().unwrap().token_issuer.issue_token(slim_user); 
                 match token_result {
                     Ok(token) => HttpResponse::Ok().json(token),
                     Err(e) => HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
@@ -64,21 +73,17 @@ pub async fn auth_handler(service_data: web::Data<AuthData>, provided_payload: w
             HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
         }
     }
-
-
-    //user_repo.get_slim_user(email: &str)
-    
-    //HttpResponse::NotFound();
-    
-    //HttpResponse::Ok().json()
 }
-
 
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     // database
     dotenv().ok();
+
+    let u = AuthPayload {email:"admin".to_string(), password:"pwd".to_string()};
+    
+    println!("{}", serde_json::to_string(&u).unwrap());
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
@@ -101,14 +106,15 @@ async fn main() -> std::io::Result<()> {
     
     let user_repo = PostgresUserRepo::new(shared_pool.clone());
 
-    let auth_data = AuthData {token_issuer: issuer, user_repo};  
+    let app_data = ApplicationData {token_issuer: issuer, user_repo};  
 
+    let data_pointer = web::Data::new(Mutex::new(auth_data));
 
     println!("Starting server!");
 
     HttpServer::new(move || {
         App::new()
-        .app_data(auth_data.clone())
+        .app_data(app_data.clone())
         .route("/auth", web::post().to(auth_handler))
     })
     .bind("127.0.0.1:8089")?

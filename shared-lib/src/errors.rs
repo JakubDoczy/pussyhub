@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug, Serialize, Deserialize)]
 pub enum AuthError {
     #[error("The email \"{0}\" is not registered.")]
     UserDoesNotExist(String),
@@ -9,7 +10,7 @@ pub enum AuthError {
     IncorrectPassword,
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug, Serialize, Deserialize)]
 pub enum ServiceError {
     #[error("The user has provided incorrect data.")]
     AuthError(AuthError),
