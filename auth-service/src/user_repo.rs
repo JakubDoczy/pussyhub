@@ -18,7 +18,7 @@ impl PostgresUserRepo {
     pub async fn get_slim_user(&self, email: &str) -> Result<Option<(SlimUser, String)>> {
         let rec = sqlx::query!(
             r#"
-            SELECT id, verified, username, password, user_role as "user_role: Role" FROM users WHERE email = $1
+            SELECT id, verified, username, password, user_role as "user_role: Role" FROM registered_user WHERE email = $1
             "#,
             email
         )
@@ -50,8 +50,8 @@ impl PostgresUserRepo {
 
         let rec = sqlx::query!(
             r#"
-            INSERT INTO users (email, verified, username, password, user_role, description, picture_url) 
-            VALUES            ($1, FALSE, $2, $3, 'user', $4, $5)
+            INSERT INTO registered_user (email, verified, username, password, user_role, description, picture_url) 
+            VALUES ($1, FALSE, $2, $3, 'user', $4, $5)
             RETURNING id
             "#,
             payload.email,
