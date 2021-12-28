@@ -97,13 +97,11 @@ pub async fn registration_handler(
         .await
     {
         Ok(Some(slim_user)) => {
-            println!("Signing token");
             let token_result = service_data
                 .lock()
                 .unwrap()
                 .token_issuer
                 .issue_token(slim_user);
-            println!("Token signed");
             match token_result {
                 Ok(token) => HttpResponse::Ok().json(token),
                 // TODO: log error

@@ -1,11 +1,9 @@
 BEGIN TRANSACTION;
 
 CREATE TYPE role AS ENUM ('admin', 'user');
-CREATE TYPE video_state AS ENUM ('Processing', 'Published');
---CREATE TYPE rating AS ENUM ('like', 'dislike');
+CREATE TYPE video_state AS ENUM ('processing', 'published');
 
-
-CREATE TABLE users (
+CREATE TABLE registered_user (
   id BIGSERIAL PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   verified BOOLEAN NOT NULL,
@@ -16,9 +14,9 @@ CREATE TABLE users (
   picture_url TEXT
 );
 
-CREATE TABLE videos (
+CREATE TABLE video (
   id BIGSERIAL PRIMARY KEY,
-  creator_id BIGINT NOT NULL REFERENCES users(id),
+  creator_id BIGINT NOT NULL REFERENCES registered_user(id),
   name TEXT NOT NULL,
   preview_url TEXT NOT NULL,
   video_url TEXT NOT NULL UNIQUE,
@@ -29,9 +27,9 @@ CREATE TABLE videos (
   state video_state NOT NULL
 );
 
-CREATE TABLE ratings (
-  video_id BIGINT NOT NULL REFERENCES videos(id),
-  user_id BIGINT NOT NULL REFERENCES users(id),
+CREATE TABLE rating (
+  video_id BIGINT NOT NULL REFERENCES video(id),
+  user_id BIGINT NOT NULL REFERENCES registered_user(id),
   rating NUMERIC NOT NULL CHECK (ABS(rating) = 1),
   UNIQUE (video_id, user_id)
 );
@@ -43,9 +41,9 @@ COMMIT;
 BEGIN TRANSACTION;
 
 
-INSERT INTO users (email, verified, password, user_role, username, description) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.');
-INSERT INTO users (email, verified, password, user_role, username, description) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.');
-INSERT INTO users (email, verified, password, user_role, username, description) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.');
+INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.');
+INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.');
+INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.');
 
 
 COMMIT;
