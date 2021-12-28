@@ -22,6 +22,7 @@ pub enum Role {
 pub struct SlimUser {
     pub user_id: i64,
     pub email: String,
+    pub verified: bool,
     pub username: String,
     pub role: Role,
     //hash: String,

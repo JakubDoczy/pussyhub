@@ -11,9 +11,21 @@ pub enum AuthError {
 }
 
 #[derive(Error, Debug, Serialize, Deserialize)]
+pub enum RegistrationError {
+    #[error("The username \"{0}\" already exists.")]
+    UsernameAlreadyExists(String),
+
+    #[error("The email \"{0}\" is already registered.")]
+    EmailAlreadyExists(String),
+}
+
+#[derive(Error, Debug, Serialize, Deserialize)]
 pub enum ServiceError {
     #[error("The user has provided incorrect data.")]
     AuthError(AuthError),
+
+    #[error("The user can't be registered.")]
+    RegistrationError(RegistrationError),
 
     #[error("Unspecified internal error.")]
     InternalServerError // Hide specifics

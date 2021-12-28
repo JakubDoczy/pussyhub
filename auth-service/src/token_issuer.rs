@@ -3,7 +3,7 @@ use chrono::Utc;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use shared_lib::token_validation::{ALGORITHM, Claims, SlimUser};
+use shared_lib::token_validation::{Claims, SlimUser, ALGORITHM};
 
 const DEFAULT_VALIDITY_DURATION_SEC: i64 = 24 * 60 * 60;
 
