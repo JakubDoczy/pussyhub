@@ -3,20 +3,14 @@ use std::sync::{Arc, Mutex};
 
 use ::dotenv::dotenv;
 
-use shared_lib::token_validation::SlimUser;
+use actix_web::{middleware, web, App, HttpResponse, HttpServer};
+use sqlx::postgres::PgPoolOptions;
 
 use shared_lib::auth::{AuthPayload, UserRegistrationPayload};
 use shared_lib::errors::{AuthError, RegistrationError};
-
-use actix_web::{
-    middleware, web, App,
-    HttpResponse, HttpServer,
-};
-
-use sqlx::postgres::PgPoolOptions;
+use shared_lib::token_validation::SlimUser;
 
 use crate::token_issuer::TokenIssuer;
-
 use crate::user_repo::PostgresUserRepo;
 
 mod token_issuer;
@@ -33,7 +27,10 @@ pub struct ApplicationData {
 
 impl ApplicationData {
     pub fn new(token_issuer: TokenIssuer, user_repo: PostgresUserRepo) -> Self {
-        Self { token_issuer: Mutex::new(token_issuer), user_repo: Mutex::new(user_repo) }
+        Self {
+            token_issuer: Mutex::new(token_issuer),
+            user_repo: Mutex::new(user_repo),
+        }
     }
 }
 
@@ -47,7 +44,6 @@ macro_rules! shared_call {
     };
 }
 
-
 /// Example:
 /// curl --header "Content-Type: application/json" \
 ///  --request POST \
@@ -59,10 +55,10 @@ pub async fn auth_handler(
 ) -> HttpResponse {
     let auth_payload = provided_payload.into_inner();
 
-    let auth_result = shared_call!(service_data, user_repo, get_slim_user(&auth_payload.email)).await;
-    
-    match auth_result
-    {
+    let auth_result =
+        shared_call!(service_data, user_repo, get_slim_user(&auth_payload.email)).await;
+
+    match auth_result {
         Ok((slim_user, hash)) => {
             if hash == auth_payload.password {
                 let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
@@ -74,8 +70,7 @@ pub async fn auth_handler(
                     }
                 }
             } else {
-                HttpResponse::Unauthorized()
-                    .json(AuthError::IncorrectPassword)
+                HttpResponse::Unauthorized().json(AuthError::IncorrectPassword)
             }
         }
         Err(e) => {
@@ -90,16 +85,19 @@ pub async fn registration_handler(
     service_data: web::Data<ApplicationData>,
     provided_payload: web::Json<UserRegistrationPayload>,
 ) -> HttpResponse {
-
     // TODO: send email
     // TODO: error handling
 
     let registration_payload = provided_payload.into_inner();
 
-    let registration_result: Result<SlimUser, RegistrationError> = shared_call!(service_data, user_repo, register_user(&registration_payload)).await;
+    let registration_result: Result<SlimUser, RegistrationError> = shared_call!(
+        service_data,
+        user_repo,
+        register_user(&registration_payload)
+    )
+    .await;
 
-    match registration_result
-    {
+    match registration_result {
         Ok(slim_user) => {
             let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
             match token_result {
@@ -149,7 +147,7 @@ async fn main() -> std::io::Result<()> {
 
     let user_repo = PostgresUserRepo::new(shared_pool.clone());
 
-    let app_data =  web::Data::new(ApplicationData::new(issuer, user_repo));
+    let app_data = web::Data::new(ApplicationData::new(issuer, user_repo));
 
     HttpServer::new(move || {
         App::new()
