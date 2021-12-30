@@ -1,21 +1,25 @@
-use anyhow::Result;
 use shared_lib::token_validation::{Role, SlimUser};
-use sqlx::{Executor, PgPool};
+use sqlx::PgPool;
 use std::sync::Arc;
 
 use shared_lib::auth::UserRegistrationPayload;
+
+use shared_lib::errors::{RegistrationError, AuthError};
 
 #[derive(Clone)]
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
 }
 
+
+
+
 impl PostgresUserRepo {
     pub fn new(pg_pool: Arc<PgPool>) -> Self {
         Self { pg_pool }
     }
 
-    pub async fn get_slim_user(&self, email: &str) -> Result<Option<(SlimUser, String)>> {
+    pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String), AuthError> {
         let rec = sqlx::query!(
             r#"
             SELECT id, verified, username, password, user_role as "user_role: Role" FROM registered_user WHERE email = $1
@@ -26,7 +30,7 @@ impl PostgresUserRepo {
         .await;
 
         match rec {
-            Ok(user) => Ok(Some((
+            Ok(user) => Ok((
                 SlimUser {
                     user_id: user.id,
                     verified: user.verified,
@@ -35,10 +39,10 @@ impl PostgresUserRepo {
                     role: user.user_role,
                 },
                 user.password,
-            ))),
+            )),
             Err(e) => match e {
-                sqlx::Error::RowNotFound => Ok(None),
-                _ => Err(anyhow::anyhow!(format!("{:?}", e))),
+                sqlx::Error::RowNotFound => Err(AuthError::UserDoesNotExist(email.to_string())),
+                _ => Err(AuthError::UnexpectedError(format!("{:?}", e))),
             },
         }
     }
@@ -46,7 +50,9 @@ impl PostgresUserRepo {
     pub async fn register_user(
         &self,
         payload: &UserRegistrationPayload,
-    ) -> Result<Option<SlimUser>> {
+    ) -> Result<SlimUser, RegistrationError> {
+        // RegistrationError
+        println!("Sending query");
 
         let rec = sqlx::query!(
             r#"
@@ -64,17 +70,30 @@ impl PostgresUserRepo {
         .await;
 
         match rec {
-            Ok(record) => Ok(Some(SlimUser {
-                user_id: record.id,
-                verified: false,
-                username: payload.username.clone(),
-                email: payload.email.clone(),
-                role: Role::User,
-            })),
+            Ok(record) => {
+                Ok(SlimUser {
+                    user_id: record.id,
+                    verified: false,
+                    username: payload.username.clone(),
+                    email: payload.email.clone(),
+                    role: Role::User,
+                })
+            },
             Err(e) => {
                 match e {
-                    // TODO: handle constraint violation
-                    _ => Err(anyhow::anyhow!(format!("{:?}", e))),
+                    sqlx::Error::Database(dyn_database_err) => {
+                        match (*dyn_database_err).constraint() {
+                            Some("registered_user_email_key") => {
+                                Err(RegistrationError::EmailAlreadyExists(payload.email.clone()))
+                            }
+                            Some ("registered_user_username_key") => {
+                                Err(RegistrationError::UsernameAlreadyExists(payload.username.clone()))
+                            }
+                            _ => Err(RegistrationError::new_unexpected(&dyn_database_err))
+                        }
+                    }
+
+                    _ => Err(RegistrationError::new_unexpected(&e)),
                 }
             }
         }
