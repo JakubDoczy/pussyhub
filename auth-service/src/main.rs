@@ -3,13 +3,13 @@ use std::sync::{Arc, Mutex};
 
 use ::dotenv::dotenv;
 
-use shared_lib::token_validation::{Role, SlimUser, TokenValidator};
+use shared_lib::token_validation::SlimUser;
 
 use shared_lib::auth::{AuthPayload, UserRegistrationPayload};
-use shared_lib::errors::{AuthError, RegistrationError, ServiceError};
+use shared_lib::errors::{AuthError, RegistrationError};
 
 use actix_web::{
-    dev::Payload, error::BlockingError, middleware, web, App, Error, FromRequest, HttpRequest,
+    middleware, web, App,
     HttpResponse, HttpServer,
 };
 
@@ -26,11 +26,27 @@ mod user_repo;
 // https://dev.to/mygnu/auth-web-microservice-with-rust-using-actix-web---complete-tutorial-part-2-k3a
 // https://gitlab.com/mygnu/rust-auth-server/-/tree/master/src
 
-#[derive(Clone)]
 pub struct ApplicationData {
-    pub token_issuer: TokenIssuer,
-    pub user_repo: PostgresUserRepo,
+    pub token_issuer: Mutex<TokenIssuer>,
+    pub user_repo: Mutex<PostgresUserRepo>,
 }
+
+impl ApplicationData {
+    pub fn new(token_issuer: TokenIssuer, user_repo: PostgresUserRepo) -> Self {
+        Self { token_issuer: Mutex::new(token_issuer), user_repo: Mutex::new(user_repo) }
+    }
+}
+
+macro_rules! shared_call {
+    ($app_data:expr, $argument:ident, $method:ident()) => {
+        $app_data.$argument.lock().unwrap().$method()
+    };
+
+    ($app_data:expr, $argument:ident, $method:ident($($method_args:expr),+)) => {
+        $app_data.$argument.lock().unwrap().$method($($method_args),+)
+    };
+}
+
 
 /// Example:
 /// curl --header "Content-Type: application/json" \
@@ -38,49 +54,40 @@ pub struct ApplicationData {
 ///  --data '{"email":"hehe","password":"pwd"}' \
 ///  127.0.0.1:8089/auth
 pub async fn auth_handler(
-    service_data: web::Data<Mutex<ApplicationData>>,
+    service_data: web::Data<ApplicationData>,
     provided_payload: web::Json<AuthPayload>,
 ) -> HttpResponse {
     let auth_payload = provided_payload.into_inner();
 
-    match service_data
-        .lock()
-        .unwrap()
-        .user_repo
-        .get_slim_user(&auth_payload.email)
-        .await
+    let auth_result = shared_call!(service_data, user_repo, get_slim_user(&auth_payload.email)).await;
+    
+    match auth_result
     {
-        Ok(Some((slim_user, hash))) => {
+        Ok((slim_user, hash)) => {
             if hash == auth_payload.password {
-                let token_result = service_data
-                    .lock()
-                    .unwrap()
-                    .token_issuer
-                    .issue_token(slim_user);
+                let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
                 match token_result {
                     Ok(token) => HttpResponse::Ok().json(token),
                     // TODO: log error
-                    Err(_) => {
-                        HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
+                    Err(e) => {
+                        HttpResponse::InternalServerError().json(AuthError::new_unexpected(&e))
                     }
                 }
             } else {
                 HttpResponse::Unauthorized()
-                    .json(ServiceError::AuthError(AuthError::IncorrectPassword))
+                    .json(AuthError::IncorrectPassword)
             }
         }
-        Ok(None) => HttpResponse::NotFound().json(ServiceError::AuthError(
-            AuthError::UserDoesNotExist(auth_payload.email),
-        )),
-        Err(_) => {
+        Err(e) => {
             // TODO: log error
-            HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
+            // TODO: censor errors
+            HttpResponse::InternalServerError().json(e)
         }
     }
 }
 
 pub async fn registration_handler(
-    service_data: web::Data<Mutex<ApplicationData>>,
+    service_data: web::Data<ApplicationData>,
     provided_payload: web::Json<UserRegistrationPayload>,
 ) -> HttpResponse {
 
@@ -89,37 +96,25 @@ pub async fn registration_handler(
 
     let registration_payload = provided_payload.into_inner();
 
-    match service_data
-        .lock()
-        .unwrap()
-        .user_repo
-        .register_user(&registration_payload)
-        .await
+    let registration_result: Result<SlimUser, RegistrationError> = shared_call!(service_data, user_repo, register_user(&registration_payload)).await;
+
+    match registration_result
     {
-        Ok(Some(slim_user)) => {
-            let token_result = service_data
-                .lock()
-                .unwrap()
-                .token_issuer
-                .issue_token(slim_user);
+        Ok(slim_user) => {
+            let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
             match token_result {
                 Ok(token) => HttpResponse::Ok().json(token),
                 // TODO: log error
-                Err(_) => {
-                    HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
+                // TODO: hide unexpected error cause
+                Err(e) => {
+                    HttpResponse::InternalServerError().json(RegistrationError::new_unexpected(&e))
                 }
             }
         }
-        Ok(None) => {
-            // FIXME
-            HttpResponse::NotFound().json(ServiceError::RegistrationError(
-                RegistrationError::UsernameAlreadyExists(registration_payload.username),
-            ))
-        }
         Err(e) => {
             // TODO: log error
-            println!("{:?}", e);
-            HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
+            //println!("{:?}", e);
+            HttpResponse::InternalServerError().json(e)
         }
     }
 }
@@ -154,10 +149,7 @@ async fn main() -> std::io::Result<()> {
 
     let user_repo = PostgresUserRepo::new(shared_pool.clone());
 
-    let app_data =  web::Data::new(Mutex::new(ApplicationData {
-        token_issuer: issuer,
-        user_repo,
-    }));
+    let app_data =  web::Data::new(ApplicationData::new(issuer, user_repo));
 
     HttpServer::new(move || {
         App::new()

@@ -1,7 +1,6 @@
 use anyhow::Error;
 use chrono::Utc;
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
+use jsonwebtoken::{encode, EncodingKey, Header};
 
 use shared_lib::token_validation::{Claims, SlimUser, ALGORITHM};
 
