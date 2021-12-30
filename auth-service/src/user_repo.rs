@@ -3,16 +3,12 @@ use sqlx::PgPool;
 use std::sync::Arc;
 
 use shared_lib::auth::UserRegistrationPayload;
-
-use shared_lib::errors::{RegistrationError, AuthError};
+use shared_lib::errors::{AuthError, RegistrationError};
 
 #[derive(Clone)]
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
 }
-
-
-
 
 impl PostgresUserRepo {
     pub fn new(pg_pool: Arc<PgPool>) -> Self {
@@ -70,32 +66,26 @@ impl PostgresUserRepo {
         .await;
 
         match rec {
-            Ok(record) => {
-                Ok(SlimUser {
-                    user_id: record.id,
-                    verified: false,
-                    username: payload.username.clone(),
-                    email: payload.email.clone(),
-                    role: Role::User,
-                })
-            },
-            Err(e) => {
-                match e {
-                    sqlx::Error::Database(dyn_database_err) => {
-                        match (*dyn_database_err).constraint() {
-                            Some("registered_user_email_key") => {
-                                Err(RegistrationError::EmailAlreadyExists(payload.email.clone()))
-                            }
-                            Some ("registered_user_username_key") => {
-                                Err(RegistrationError::UsernameAlreadyExists(payload.username.clone()))
-                            }
-                            _ => Err(RegistrationError::new_unexpected(&dyn_database_err))
-                        }
+            Ok(record) => Ok(SlimUser {
+                user_id: record.id,
+                verified: false,
+                username: payload.username.clone(),
+                email: payload.email.clone(),
+                role: Role::User,
+            }),
+            Err(e) => match e {
+                sqlx::Error::Database(dyn_database_err) => match (*dyn_database_err).constraint() {
+                    Some("registered_user_email_key") => {
+                        Err(RegistrationError::EmailAlreadyExists(payload.email.clone()))
                     }
+                    Some("registered_user_username_key") => Err(
+                        RegistrationError::UsernameAlreadyExists(payload.username.clone()),
+                    ),
+                    _ => Err(RegistrationError::new_unexpected(&dyn_database_err)),
+                },
 
-                    _ => Err(RegistrationError::new_unexpected(&e)),
-                }
-            }
+                _ => Err(RegistrationError::new_unexpected(&e)),
+            },
         }
     }
 }
