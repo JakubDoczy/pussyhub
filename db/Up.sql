@@ -11,7 +11,8 @@ CREATE TABLE registered_user (
   user_role role NOT NULL,
   username TEXT NOT NULL UNIQUE,
   description TEXT,
-  picture_url TEXT
+  picture_url TEXT,
+  created_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE video (

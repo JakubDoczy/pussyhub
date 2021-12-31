@@ -1,6 +1,7 @@
 use shared_lib::token_validation::{Role, SlimUser};
 use sqlx::PgPool;
 use std::sync::Arc;
+use chrono::Utc;
 
 use shared_lib::auth::UserRegistrationPayload;
 use shared_lib::errors::{AuthError, RegistrationError};
@@ -52,15 +53,16 @@ impl PostgresUserRepo {
 
         let rec = sqlx::query!(
             r#"
-            INSERT INTO registered_user (email, verified, username, password, user_role, description, picture_url) 
-            VALUES ($1, FALSE, $2, $3, 'user', $4, $5)
+            INSERT INTO registered_user (email, verified, username, password, user_role, description, picture_url, created_at) 
+            VALUES ($1, FALSE, $2, $3, 'user', $4, $5, $6)
             RETURNING id
             "#,
             payload.email,
             payload.username,
             payload.password,
             payload.description,
-            payload.picture_url
+            payload.picture_url,
+            Utc::now()
         )
         .fetch_one(&*self.pg_pool)
         .await;

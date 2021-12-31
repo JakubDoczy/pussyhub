@@ -1,6 +1,7 @@
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, TokenData};
 use serde::{Deserialize, Serialize};
 use anyhow::Error;
+use serde::de::DeserializeOwned;
 
 // Quickstart:
 // let validator = TokenValidator("/resources/public.pem")
@@ -40,15 +41,6 @@ pub struct Claims {
     pub user: SlimUser,
 }
 
-fn validate_token(token: &str, public_key: &DecodingKey) -> Result<SlimUser, Error> {
-    let validator = Validation {
-        ..Validation::new(ALGORITHM)
-    };
-
-    let token_data = decode::<Claims>(token, &public_key, &validator)?;
-
-    Ok(token_data.claims.user)
-}
 
 pub struct TokenValidator {
     // this is retarded but we do not plan on having more than one key
@@ -65,8 +57,17 @@ impl TokenValidator {
         Ok(validator)
     }
 
-    pub fn validate(self, token: &str) -> Result<SlimUser, Error> {
-        validate_token(token, &self.public_key)
+    pub fn decode<T: DeserializeOwned>(&self, token: &str) -> jsonwebtoken::errors::Result<TokenData<T>> {
+        let validator = Validation {
+            ..Validation::new(ALGORITHM)
+        };
+    
+        decode::<T>(token, &self.public_key, &validator)
+    }
+
+    pub fn validate(&self, token: &str) -> Result<SlimUser, Error> {
+        let result = self.decode::<Claims>(token)?;
+        Ok(result.claims.user)
     }
 }
 
