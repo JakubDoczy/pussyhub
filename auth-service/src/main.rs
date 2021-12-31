@@ -15,6 +15,7 @@ use crate::user_repo::PostgresUserRepo;
 
 mod token_issuer;
 mod user_repo;
+mod invitation_handler;
 
 //
 // https://dev.to/mygnu/auth-web-microservice-with-rust-using-actix-web---complete-tutorial-part-2-k3a
