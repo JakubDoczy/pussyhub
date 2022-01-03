@@ -7,7 +7,6 @@ use shared_lib::token_validation::{Claims, SlimUser, ALGORITHM};
 
 pub const DEFAULT_VALIDITY_DURATION_SEC: i64 = 24 * 60 * 60;
 
-
 #[derive(Clone)]
 pub struct TokenIssuer {
     private_key: EncodingKey,
@@ -22,7 +21,11 @@ impl TokenIssuer {
         Ok(issuer)
     }
 
-    pub fn encode<T: Serialize>(&self, header: &Header, claims: &T) -> Result<String, jsonwebtoken::errors::Error> {
+    pub fn encode<T: Serialize>(
+        &self,
+        header: &Header,
+        claims: &T,
+    ) -> Result<String, jsonwebtoken::errors::Error> {
         encode(header, &claims, &self.private_key)
     }
 
@@ -32,8 +35,7 @@ impl TokenIssuer {
             exp: (Utc::now().timestamp() + DEFAULT_VALIDITY_DURATION_SEC) as usize,
             user,
         };
-        
+
         self.encode(&Header::new(ALGORITHM), &body)
     }
-    
 }

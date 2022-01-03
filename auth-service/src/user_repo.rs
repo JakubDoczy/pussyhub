@@ -1,10 +1,10 @@
+use chrono::Utc;
 use shared_lib::token_validation::{Role, SlimUser};
 use sqlx::PgPool;
 use std::sync::Arc;
-use chrono::Utc;
 
 use shared_lib::auth::UserRegistrationPayload;
-use shared_lib::errors::{AuthError, RegistrationError};
+use shared_lib::errors::{AuthError, EmailVerificationError, RegistrationError};
 
 #[derive(Clone)]
 pub struct PostgresUserRepo {
@@ -87,6 +87,26 @@ impl PostgresUserRepo {
                 },
 
                 _ => Err(RegistrationError::new_unexpected(&e)),
+            },
+        }
+    }
+
+    pub async fn set_email_verified(&self, id: i64) -> Result<(), EmailVerificationError> {
+        let rows_affected = sqlx::query!(
+            r#"
+            UPDATE registered_user
+            SET verified = TRUE
+            WHERE id = $1
+            "#,
+            id
+        )
+        .execute(&*self.pg_pool)
+        .await;
+
+        match rows_affected {
+            Ok(_) => Ok(()),
+            Err(e) => match e {
+                _ => Err(EmailVerificationError::UnexpectedError(format!("{:?}", e))),
             },
         }
     }
