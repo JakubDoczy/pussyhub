@@ -25,4 +25,12 @@ services:
     restart: always
     ports:
       - 8079:8079
+  smtp:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - 3000:80
+      - 2525:25
+  
+
 

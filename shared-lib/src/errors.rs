@@ -73,3 +73,22 @@ impl RegistrationError {
     }
 }
 
+#[derive(Error, Debug, Serialize, Deserialize, Clone)]
+pub enum EmailVerificationError {
+    #[error("Unexpected error \"{0}\".")]
+    UnexpectedError(String),
+
+    #[error("Invitation token is invalid.")]
+    InvalidToken(),
+}
+
+impl EmailVerificationError {
+    pub fn censor(&self) -> Self {
+        match self {
+            EmailVerificationError::UnexpectedError(_) => {
+                EmailVerificationError::UnexpectedError("Internal problem".to_string())
+            },
+            e => (*e).clone(),
+        }
+    }   
+}
