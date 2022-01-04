@@ -10,31 +10,8 @@ pub enum AuthError {
     #[error("The user provided incorrect password.")]
     IncorrectPassword,
 
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String)
-}
-
-impl AuthError {
-
-    pub fn new_unexpected(cause: &impl std::fmt::Debug) -> AuthError {
-        AuthError::UnexpectedError(format!("Cause: {:?}", cause))
-    }
-
-    pub fn new_generic() -> AuthError {
-        AuthError::UnexpectedError(format!("Cause not specified."))
-    }
-    
-    pub fn censor(&self) -> Self {
-        match self {
-            AuthError::UnexpectedError(_) => {
-                AuthError::UnexpectedError("Internal problem".to_string())
-            }
-
-            other_cause => {
-                (*other_cause).clone()
-            }
-        }
-    }
+    #[error("Unexpected error.")]
+    UnexpectedError
 }
 
 
@@ -46,49 +23,15 @@ pub enum RegistrationError {
     #[error("The email \"{0}\" is already registered.")]
     EmailAlreadyExists(String),
 
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),    
-}
-
-impl RegistrationError {
-
-    pub fn new_unexpected(cause: &impl std::fmt::Debug) -> RegistrationError {
-        RegistrationError::UnexpectedError(format!("Cause: {:?}", cause))
-    }
-
-    pub fn new_generic() -> RegistrationError {
-        RegistrationError::UnexpectedError(format!("Cause not specified."))
-    }
-    
-    pub fn censor(&self) -> Self {
-        match self {
-            RegistrationError::UnexpectedError(_) => {
-                RegistrationError::UnexpectedError("Internal problem".to_string())
-            }
-
-            other_cause => {
-                (*other_cause).clone()
-            }
-        }
-    }
+    #[error("Unexpected error.")]
+    UnexpectedError,    
 }
 
 #[derive(Error, Debug, Serialize, Deserialize, Clone)]
 pub enum EmailVerificationError {
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),
+    #[error("Unexpected error.")]
+    UnexpectedError,
 
     #[error("Invitation token is invalid.")]
-    InvalidToken(),
-}
-
-impl EmailVerificationError {
-    pub fn censor(&self) -> Self {
-        match self {
-            EmailVerificationError::UnexpectedError(_) => {
-                EmailVerificationError::UnexpectedError("Internal problem".to_string())
-            },
-            e => (*e).clone(),
-        }
-    }   
+    InvalidToken,
 }
