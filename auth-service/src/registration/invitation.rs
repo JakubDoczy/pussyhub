@@ -2,7 +2,6 @@ use chrono::Utc;
 use jsonwebtoken::Header;
 use serde::{Deserialize, Serialize};
 
-use shared_lib::errors::EmailVerificationError;
 use shared_lib::token_validation::{TokenValidator, ALGORITHM};
 
 use crate::token_issuer::{TokenIssuer, DEFAULT_VALIDITY_DURATION_SEC};

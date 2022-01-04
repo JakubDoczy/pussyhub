@@ -1,16 +1,17 @@
 use std::env;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use ::dotenv::dotenv;
 
-use actix_web::{middleware, web, App, HttpResponse, HttpServer};
+use actix_web::{middleware, web, App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
 
 use lettre::SmtpTransport;
 
-use shared_lib::auth::{AuthPayload, UserRegistrationPayload};
-use shared_lib::errors::{AuthError, RegistrationError};
-use shared_lib::token_validation::{SlimUser, TokenValidator};
+use shared_lib::token_validation::TokenValidator;
+
+use tracing::info;
+use tracing_subscriber;
 
 use crate::application_data::ApplicationData;
 use crate::auth::handlers::auth_handler;
@@ -29,14 +30,10 @@ mod token_issuer;
 
 // TODO: logging
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
-    // database
-    dotenv().ok();
-
-    env_logger::init();
+async fn initialize_user_repo() -> PostgresUserRepo {
+    // If that program fails to connect to the database, it will panic.
+    // We have no way to recover from this.
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    //let smtp_address = env::var("SMTP_ADDRESS").expect("SMTP_ADDRESS must be set");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -44,22 +41,24 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Failed to connect to the database!");
 
-    //static MIGRATOR: Migrator = sqlx::migrate!();
-    //MIGRATOR.run(&pool).await?;
+    PostgresUserRepo::new(Arc::new(pool))
+}
 
-    let shared_pool = Arc::new(pool);
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
-    // Token issuer
+    tracing_subscriber::fmt::init();
+
     let token_issuer = TokenIssuer::from_rsa_pem("resources/private.pem")
         .await
         .unwrap();
 
-    // Token validator
     let token_validator = TokenValidator::from_rsa_pem("resources/public.pem")
         .await
         .unwrap();
 
-    let user_repo = PostgresUserRepo::new(shared_pool.clone());
+    let user_repo = initialize_user_repo().await;
     let smtp_transport = SmtpTransport::builder_dangerous("localhost")
         .port(2525)
         .build();
@@ -71,6 +70,10 @@ async fn main() -> std::io::Result<()> {
         smtp_transport,
     ));
 
+    let address = env::var("AUTH_SERVICE_ADDRESS").expect("AUTH_SERVICE_ADDRESS must be set");
+
+    info!("Starting http server on {}", address);
+
     HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
@@ -80,7 +83,7 @@ async fn main() -> std::io::Result<()> {
             .route("/confirmation/{token}", web::get().to(confirmation_handler))
         //.route("/registration", web::post().to(registration_handler))
     })
-    .bind(env::var("AUTH_SERVICE_ADDRESS").expect("AUTH_SERVICE_ADDRESS must be set"))?
+    .bind(address)?
     .run()
     .await
 }
