@@ -5,7 +5,8 @@ use crate::database::user_repo::PostgresUserRepo;
 use crate::token_issuer::TokenIssuer;
 use shared_lib::token_validation::TokenValidator;
 
-pub struct ApplicationData {
+/// Holds application state.
+pub(crate) struct ApplicationData {
     pub token_issuer: Mutex<TokenIssuer>,
     pub token_validator: Mutex<TokenValidator>,
     pub user_repo: Mutex<PostgresUserRepo>,
@@ -13,6 +14,7 @@ pub struct ApplicationData {
 }
 
 impl ApplicationData {
+    /// Creates a new application state.
     pub fn new(
         token_issuer: TokenIssuer,
         token_validator: TokenValidator,

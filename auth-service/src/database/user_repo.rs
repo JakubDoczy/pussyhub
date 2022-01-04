@@ -4,19 +4,23 @@ use sqlx::PgPool;
 use std::sync::Arc;
 
 use shared_lib::auth::UserRegistrationPayload;
-use shared_lib::errors::{AuthError, EmailVerificationError, RegistrationError};
 
+use crate::database::error::{DBAuthError, DBEmailVerificationError, DBRegistrationError};
+
+/// User repository.
 #[derive(Clone)]
 pub struct PostgresUserRepo {
     pg_pool: Arc<PgPool>,
 }
 
 impl PostgresUserRepo {
+    /// Creates a new user repository.
     pub fn new(pg_pool: Arc<PgPool>) -> Self {
         Self { pg_pool }
     }
 
-    pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String), AuthError> {
+    /// Obtains a user that has a given email address.
+    pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String), DBAuthError> {
         let rec = sqlx::query!(
             r#"
             SELECT id, verified, username, password, user_role as "user_role: Role" FROM registered_user WHERE email = $1
@@ -38,16 +42,17 @@ impl PostgresUserRepo {
                 user.password,
             )),
             Err(e) => match e {
-                sqlx::Error::RowNotFound => Err(AuthError::UserDoesNotExist(email.to_string())),
-                _ => Err(AuthError::UnexpectedError(format!("{:?}", e))),
+                sqlx::Error::RowNotFound => Err(DBAuthError::UserDoesNotExist(email.to_string())),
+                _ => Err(DBAuthError::UnexpectedError(format!("{:?}", e))),
             },
         }
     }
 
+    /// Registers a new user.
     pub async fn register_user(
         &self,
         payload: &UserRegistrationPayload,
-    ) -> Result<SlimUser, RegistrationError> {
+    ) -> Result<SlimUser, DBRegistrationError> {
         // RegistrationError
         println!("Sending query");
 
@@ -77,21 +82,22 @@ impl PostgresUserRepo {
             }),
             Err(e) => match e {
                 sqlx::Error::Database(dyn_database_err) => match (*dyn_database_err).constraint() {
-                    Some("registered_user_email_key") => {
-                        Err(RegistrationError::EmailAlreadyExists(payload.email.clone()))
-                    }
-                    Some("registered_user_username_key") => Err(
-                        RegistrationError::UsernameAlreadyExists(payload.username.clone()),
+                    Some("registered_user_email_key") => Err(
+                        DBRegistrationError::EmailAlreadyExists(payload.email.clone()),
                     ),
-                    _ => Err(RegistrationError::new_unexpected(&dyn_database_err)),
+                    Some("registered_user_username_key") => Err(
+                        DBRegistrationError::UsernameAlreadyExists(payload.username.clone()),
+                    ),
+                    e => Err(DBRegistrationError::UnexpectedError(format!("Database error, violation of constraint: {:?}", e))),
                 },
 
-                _ => Err(RegistrationError::new_unexpected(&e)),
+                e => Err(DBRegistrationError::UnexpectedError(format!("{:?}", e))),
             },
         }
     }
 
-    pub async fn set_email_verified(&self, id: i64) -> Result<(), EmailVerificationError> {
+    /// Sets a user's email to verified.
+    pub async fn set_email_verified(&self, id: i64) -> Result<(), DBEmailVerificationError> {
         let rows_affected = sqlx::query!(
             r#"
             UPDATE registered_user
@@ -106,7 +112,10 @@ impl PostgresUserRepo {
         match rows_affected {
             Ok(_) => Ok(()),
             Err(e) => match e {
-                _ => Err(EmailVerificationError::UnexpectedError(format!("{:?}", e))),
+                _ => Err(DBEmailVerificationError::UnexpectedError(format!(
+                    "{:?}",
+                    e
+                ))),
             },
         }
     }
