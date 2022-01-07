@@ -23,7 +23,7 @@ impl PostgresVideoRepository {
 #[async_trait]
 impl VideoRepository for PostgresVideoRepository {
     async fn get_video(&self, id: i32) -> anyhow::Result<Video> {
-        let video = sqlx::query_as!(Video, r#"SELECT * FROM videos WHERE id = $1"#, id: i32)
+        let video = sqlx::query_as!(Video, r#"SELECT * FROM video WHERE id = $1"#, id: i32)
             .fetch_one(&*self.pg_pool)
             .await?;
 
