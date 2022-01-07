@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use repository::user_repository::PostgresUserRepository;
 use sqlx::postgres::PgPoolOptions;
 use std::{env, sync::Arc};
 use actix_cors::Cors;
@@ -30,6 +31,7 @@ async fn main() -> std::io::Result<()> {
     );
 
     let video_repository = Arc::new(PostgresVideoRepository::new(pool.clone()));
+    let user_repository = Arc::new(PostgresUserRepository::new(pool.clone()));
 
     HttpServer::new(move || {
 
@@ -41,9 +43,11 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(video_repository.clone()))
+            .app_data(web::Data::new(user_repository.clone()))
             .service(
                 web::scope("/api")
                 .service(endpoint::video::get_video_by_id)
+                .service(endpoint::user::get_user_by_id)
                 .service(Files::new("/static", "./static").show_files_listing())
             )
     })
