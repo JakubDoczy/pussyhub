@@ -8,7 +8,7 @@ use crate::repository::video_repository::{PostgresVideoRepository, VideoReposito
 pub async fn get_video_by_id(
     data: web::Data<Arc<PostgresVideoRepository>>,
     // Get id from path via params
-    params: web::Path<i32>,
+    params: web::Path<i64>,
 ) -> impl Responder {
     let id = params.into_inner();
 

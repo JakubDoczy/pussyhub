@@ -17,3 +17,5 @@ Cargo.lock
 
 # ide
 .idea/
+auth-service/target/
+shared-lib/target/

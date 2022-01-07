@@ -7,7 +7,7 @@ use sqlx::PgPool;
 
 #[async_trait]
 pub trait VideoRepository {
-    async fn get_video(&self, id: i32) -> Result<Video>;
+    async fn get_video(&self, id: i64) -> Result<Video>;
 }
 
 pub struct PostgresVideoRepository {
@@ -22,8 +22,8 @@ impl PostgresVideoRepository {
 
 #[async_trait]
 impl VideoRepository for PostgresVideoRepository {
-    async fn get_video(&self, id: i32) -> anyhow::Result<Video> {
-        let video = sqlx::query_as!(Video, r#"SELECT * FROM video WHERE id = $1"#, id: i32)
+    async fn get_video(&self, id: i64) -> anyhow::Result<Video> {
+        let video = sqlx::query_as!(Video, r#"SELECT id, creator_id, name, preview_url, video_url, views, likes, dislikes, created_at FROM video WHERE id = $1"#, id: i64)
             .fetch_one(&*self.pg_pool)
             .await?;
 
