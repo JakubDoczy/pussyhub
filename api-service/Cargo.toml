@@ -1,11 +1,13 @@
 [package]
-name = "server"
+name = "api-service"
 version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+shared_lib = { path = "../shared-lib" }
+
 actix-web = "4.0.0-beta.11"
 actix-cors = "0.6.0-beta.4"
 tokio = { version = "1", features = ["full"]}
