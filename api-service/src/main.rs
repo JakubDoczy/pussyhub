@@ -20,6 +20,9 @@ use actix_web::{web, App, HttpServer};
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+
+    tracing_subscriber::fmt::init();
+
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL cannot be empty");
     
     let pool = Arc::new(
