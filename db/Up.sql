@@ -24,7 +24,7 @@ CREATE TABLE video (
   views INTEGER NOT NULL,
   likes INTEGER NOT NULL,
   dislikes INTEGER NOT NULL,
-  creation_time TIMESTAMP NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   state video_state NOT NULL
 );
 
