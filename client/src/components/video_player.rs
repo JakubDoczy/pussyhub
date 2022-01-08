@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-
+use uuid::Uuid;
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 
 #[derive(Properties, Clone)]
@@ -9,15 +9,17 @@ pub struct Props {
 
 pub struct Video {
     video_source_url: String,
+    element_id: String
 }
 
 impl Component for Video {
     type Message = ();
     type Properties = Props;
 
-    fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
+    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             video_source_url: props.src,
+            element_id: Uuid::new_v4().to_string()
         }
     }
 
@@ -31,12 +33,13 @@ impl Component for Video {
 
     fn view(&self) -> Html {
         html!(
-            <div id={"phVideoPlayer"}></div>
+            <div id={self.element_id.clone()}></div>
         )
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        playVideo("phVideoPlayer", self.video_source_url.as_str());
+        println!("{}", self.element_id);
+        playVideo(self.element_id.as_str(), self.video_source_url.as_str());
     }
 }
 
