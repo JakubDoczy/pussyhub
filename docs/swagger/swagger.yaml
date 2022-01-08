@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: testing auto generation
 paths:
-  /user/auth:
+  /users/auth:
     get:
       summary: Logs in an user
       tags:
@@ -28,7 +28,7 @@ paths:
             text/plain:
                 schema:
                   type: string
-  /user/registration:
+  /users/registration:
     get:
       summary: Registers an user
       tags:
@@ -57,7 +57,7 @@ paths:
             text/plain:
                 schema:
                   type: string
-  /user/{id}:
+  /users/{id}:
     get:
       summary: Get User by Id
       tags:
@@ -269,7 +269,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Video'
-  /video/{id}/like:
+  /videos/{id}/like:
     post:
       summary: Gives video like
       tags:
@@ -284,7 +284,7 @@ paths:
       responses:
         '200': 
           description: OK
-  /video/{id}/dislike:
+  /videos/{id}/dislike:
     post:
       summary: Gives video dislike
       tags:
