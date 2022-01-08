@@ -341,6 +341,9 @@ components:
           description: ISO 8061 date string
         rating:
           $ref: '#/components/schemas/Rating'
+        category:
+          required: false
+          $ref: '#/components/schemas/Category'
     VideoWithId:
       allOf:
         - type: object
