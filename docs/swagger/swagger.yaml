@@ -255,25 +255,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Video'
-  /video/{id}/rating:
-    post:
-      summary: Gets videos in given category
-      tags:
-        - "rating"
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-          description: ID of Category
-      responses:
-        '200':    # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Rating'
   /video/{id}/like:
     post:
       summary: Gives video like
@@ -344,10 +325,8 @@ components:
         created_at:
           type: string
           description: ISO 8061 date string
-        ratings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rating'
+        rating:
+          $ref: '#/components/schemas/Rating'
     VideoWithId:
       allOf:
         - type: object
