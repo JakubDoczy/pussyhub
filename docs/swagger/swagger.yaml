@@ -2,6 +2,7 @@ openapi: 3.0.0
 info:
   title: PussyHub API
   version: 1.0.0
+  description: testing auto generation
 paths:
   /user/auth:
     get:
