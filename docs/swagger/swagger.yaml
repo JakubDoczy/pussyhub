@@ -149,6 +149,13 @@ paths:
       summary: List all videos
       tags:
         - "video"
+      parameters:
+          - in: query
+            name: page
+            schema:
+              type: integer
+            required: false
+            description: Page number
       responses:
         '200':    # status code
           description: A JSON array of Videos
@@ -246,6 +253,13 @@ paths:
       tags:
         - "video"
         - "category"
+      parameters:
+          - in: query
+            name: page
+            schema:
+              type: integer
+            required: false
+            description: Page number
       responses:
         '200':    # status code
           description: A JSON array of Videos
