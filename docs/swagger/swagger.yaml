@@ -315,22 +315,15 @@ paths:
       responses:
         '200':
           description: OK
-  /user/{id}/profile_upload:
+  /user/profile_upload:
     post:
       summary: Uploads profile picture for user
       tags:
         - user
         - upload
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-          description: ID of User to upload
       responses:
         '200':
-          description: TODO
+          description: Returns safe file name
   /streams: 
     get:
       summary: List current airing streams
