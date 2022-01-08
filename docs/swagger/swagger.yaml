@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: PussyHub API
+  version: 1.0.0
+paths:
+  /user/auth:
+    get:
+      summary: Logs in an user
+      tags:
+        - "user"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /user/registration:
+    get:
+      summary: Registers an user
+      tags:
+        - "user"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /user/{id}:
+    get:
+      summary: Get User by Id
+      tags:
+        - "user"
+      responses:
+        '200':    # status code
+          description: Serialized user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /videos/{id}:
+    get:
+      summary: Gets video by Id
+      tags:
+        - "video"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Video'
+    put:
+      summary: Updates video by Id
+      tags:
+        - "video"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+    delete:
+      summary: Deletes video by Id
+      tags:
+        - "video"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /videos:
+    post:
+      summary: Creates new video
+      tags:
+        - "video"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+    get:
+      summary: List all videos
+      tags:
+        - "video"
+      responses:
+        '200':    # status code
+          description: A JSON array of Videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Video'
+  /categories/{id}:
+    get:
+      summary: Gets category by Id
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+    put:
+      summary: Updates category by Id
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+    delete:
+      summary: Deletes category by Id
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /categories:
+    post:
+      summary: Creates new category
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+    get:
+      summary: List all categories
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /categories/{id}/videos:
+    get:
+      summary: Gets videos in given category
+      tags:
+        - "video"
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Video'
+  /video/{id}/rating:
+    post:
+      summary: Gets videos in given category
+      tags:
+        - "rating"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+  /video/{id}/like:
+    post:
+      summary: Gives video like
+      tags:
+        - "rating"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+  /video/{id}/dislike:
+    post:
+      summary: Gives video dislike
+      tags:
+        - "rating"
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+components:
+  schemas:
+    ROLE:
+      type: string
+      enum: [admin, user]
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        user_role:
+          $ref: '#/components/schemas/ROLE'
+        username:
+          type: string
+        description:
+          type: string
+        picture_url:
+          type: string
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        creator_id:
+          type: integer
+        name:
+          type: string
+        preview_url:
+          type: string
+        video_url:
+          type: string
+        views:
+          type: integer
+        likes:
+          type: integer
+        dislikes:
+          type: integer
+        created_at:
+          type: string
+          description: ISO 8061 date string
+        ratings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rating'
+    Rating:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        rating:
+          type: integer
+
+      
