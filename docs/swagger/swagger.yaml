@@ -8,22 +8,66 @@ paths:
       summary: Logs in an user
       tags:
         - "user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Returns User JWT Token
+          content:  
+            text/plain:
+                schema:
+                  type: string
   /user/registration:
     get:
       summary: Registers an user
       tags:
         - "user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                description:
+                  type: string
+                picture_url:
+                  type: string
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Returns User JWT Token
+          content:  
+            text/plain:
+                schema:
+                  type: string
   /user/{id}:
     get:
       summary: Get User by Id
       tags:
         - "user"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of User
       responses:
         '200':    # status code
           description: Serialized user
@@ -36,35 +80,70 @@ paths:
       summary: Gets video by Id
       tags:
         - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Video JSON
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Video'
+                $ref: '#/components/schemas/VideoWithId'
     put:
       summary: Updates video by Id
       tags:
         - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Updated Video JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoWithId'
     delete:
       summary: Deletes video by Id
       tags:
         - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: OK
   /videos:
     post:
       summary: Creates new video
       tags:
         - "video"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Video JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoWithId'
     get:
       summary: List all videos
       tags:
@@ -77,44 +156,89 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Video'
+                  $ref: '#/components/schemas/VideoWithId'
   /categories/{id}:
     get:
       summary: Gets category by Id
       tags:
         - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Category JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
     put:
       summary: Updates category by Id
       tags:
         - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Updated Category JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
     delete:
       summary: Deletes category by Id
       tags:
         - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: OK
   /categories:
     post:
       summary: Creates new category
       tags:
         - "category"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: A JSON of Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
     get:
       summary: List all categories
       tags:
         - "category"
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: A JSON array of Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
   /categories/{id}/videos:
     get:
       summary: Gets videos in given category
@@ -123,7 +247,7 @@ paths:
         - "category"
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: A JSON array of Videos
           content:
             application/json:
               schema:
@@ -135,6 +259,13 @@ paths:
       summary: Gets videos in given category
       tags:
         - "rating"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
       responses:
         '200':    # status code
           description: A JSON array of user names
@@ -147,17 +278,31 @@ paths:
       summary: Gives video like
       tags:
         - "rating"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
       responses:
-        '200':    # status code
-          description: A JSON array of user names
+        '200': 
+          description: OK
   /video/{id}/dislike:
     post:
       summary: Gives video dislike
       tags:
         - "rating"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
       responses:
-        '200':    # status code
-          description: A JSON array of user names
+        '200':
+          description: OK
 components:
   schemas:
     ROLE:
@@ -181,8 +326,6 @@ components:
     Video:
       type: object
       properties:
-        id:
-          type: integer
         creator_id:
           type: integer
         name:
@@ -204,6 +347,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Rating'
+    VideoWithId:
+      allOf:
+        - type: object
+          properties:
+            id: 
+              type: integer
+        - $ref: '#/components/schemas/Video'
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+    CategoryWithId:
+      allOf:
+        - type: object
+          properties:
+            id: 
+              type: integer
+        - $ref: '#/components/schemas/Category'
     Rating:
       type: object
       properties:
