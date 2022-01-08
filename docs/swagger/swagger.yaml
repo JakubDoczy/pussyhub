@@ -299,6 +299,83 @@ paths:
       responses:
         '200':
           description: OK
+  /videos/{id}/upload:
+    post:
+      summary: Uploads video (should support partial uploads)
+      tags:
+        - video
+        - upload
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video to upload
+      responses:
+        '200':
+          description: OK
+  /user/{id}/profile_upload:
+    post:
+      summary: Uploads profile picture for user
+      tags:
+        - user
+        - upload
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of User to upload
+      responses:
+        '200':
+          description: TODO
+  /streams: 
+    get:
+      summary: List current airing streams
+      tags:
+        - stream
+      responses:
+        '200':
+          description: TODO
+    post:
+      summary: Create stream and return stream token
+      tags:
+        - stream
+      responses:
+        '200':
+          description: TODO
+  /streams/{id}:
+    get:
+      summary: Get stream metadata
+      tags:
+        - stream
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Stream
+      responses:
+        '200':
+          description: TODO
+  /streams/{token}:
+    post:
+      summary: Get stream metadata
+      tags:
+        - stream
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Stream token
+      responses:
+        '200':
+          description: TODO
 components:
   schemas:
     ROLE:
