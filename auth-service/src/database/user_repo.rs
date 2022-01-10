@@ -3,7 +3,7 @@ use shared_lib::token_validation::{Role, SlimUser};
 use sqlx::PgPool;
 use std::sync::Arc;
 
-use shared_lib::auth::UserRegistrationPayload;
+use shared_lib::payload::registration::UserRegistrationPayload;
 
 use crate::database::error::{DBAuthError, DBEmailVerificationError, DBRegistrationError};
 

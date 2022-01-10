@@ -59,7 +59,7 @@ async fn main() -> std::io::Result<()> {
         .unwrap();
 
     let user_repo = initialize_user_repo().await;
-    let smtp_transport = SmtpTransport::builder_dangerous("localhost")
+    let smtp_transport = SmtpTransport::builder_dangerous("smtp")
         .port(2525)
         .build();
 

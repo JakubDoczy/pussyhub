@@ -6,8 +6,8 @@ use anyhow::Error;
 use lettre::{Message, SmtpTransport, Transport};
 use tracing::{debug, error};
 
-use shared_lib::auth::UserRegistrationPayload;
-use shared_lib::errors::{EmailVerificationError, RegistrationError};
+use shared_lib::payload::registration::UserRegistrationPayload;
+use shared_lib::error::registration::{EmailVerificationError, RegistrationError};
 use shared_lib::token_validation::SlimUser;
 
 use crate::database::error::DBRegistrationError;
