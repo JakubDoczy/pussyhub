@@ -1,4 +1,5 @@
 mod components;
+mod services;
 use crate::components::home::Home;
 
 use yew::{classes, html, Component, ComponentLink, Html, ShouldRender};
