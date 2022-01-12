@@ -1,5 +1,5 @@
 # Use postgres/example user/password credentials
-version: '3.3'
+version: '3.9'
 
 # To restart the database, use:
 # docker-compose down --volumes
@@ -9,6 +9,7 @@ version: '3.3'
 services:
 
   db:
+    container_name: db
     build: ./db
     image: postgres
     restart: always
@@ -16,21 +17,38 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: db
       POSTGRES_PASSWORD: example
+    user: postgres
+#    expose:
+#      - 5432
     ports:
       - 5432:5432
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   adminer:
     image: adminer
     restart: always
     ports:
       - 8079:8079
   smtp:
+    container_name: smtp
     image: rnwood/smtp4dev:v3
     restart: always
     ports:
       - 3000:80
       - 2525:25
-  
-
-
+  auth:
+    container_name: auth
+    build:
+      dockerfile: auth-service/Dockerfile
+    ports:
+      - 8089:8089
+    depends_on:
+      smtp:
+        condition: service_started
+      db:
+        condition: service_healthy

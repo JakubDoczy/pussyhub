@@ -2,8 +2,8 @@ use actix_web::{web, HttpResponse};
 
 use tracing::{debug, error};
 
-use shared_lib::auth::AuthPayload;
-use shared_lib::errors::AuthError;
+use shared_lib::payload::auth::AuthPayload;
+use shared_lib::error::auth::AuthError;
 
 use crate::application_data::ApplicationData;
 use crate::database::error::DBAuthError;
