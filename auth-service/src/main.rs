@@ -1,139 +1,38 @@
 use std::env;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use ::dotenv::dotenv;
 
-use shared_lib::token_validation::{Role, SlimUser, TokenValidator};
-
-use shared_lib::auth::{AuthPayload, UserRegistrationPayload};
-use shared_lib::errors::{AuthError, RegistrationError, ServiceError};
-
-use actix_web::{
-    dev::Payload, error::BlockingError, middleware, web, App, Error, FromRequest, HttpRequest,
-    HttpResponse, HttpServer,
-};
-
+use actix_web::{middleware, web, App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
 
+use lettre::SmtpTransport;
+
+use shared_lib::token_validation::TokenValidator;
+
+use tracing::info;
+use tracing_subscriber;
+
+use crate::application_data::ApplicationData;
+use crate::auth::handlers::auth_handler;
+use crate::database::user_repo::PostgresUserRepo;
+use crate::registration::handlers::{confirmation_handler, registration_handler};
 use crate::token_issuer::TokenIssuer;
 
-use crate::user_repo::PostgresUserRepo;
-
+mod application_data;
+mod auth;
+mod database;
+mod registration;
 mod token_issuer;
-mod user_repo;
 
-//
 // https://dev.to/mygnu/auth-web-microservice-with-rust-using-actix-web---complete-tutorial-part-2-k3a
 // https://gitlab.com/mygnu/rust-auth-server/-/tree/master/src
 
-#[derive(Clone)]
-pub struct ApplicationData {
-    pub token_issuer: TokenIssuer,
-    pub user_repo: PostgresUserRepo,
-}
-
-/// Example:
-/// curl --header "Content-Type: application/json" \
-///  --request POST \
-///  --data '{"email":"hehe","password":"pwd"}' \
-///  127.0.0.1:8089/auth
-pub async fn auth_handler(
-    service_data: web::Data<Mutex<ApplicationData>>,
-    provided_payload: web::Json<AuthPayload>,
-) -> HttpResponse {
-    let auth_payload = provided_payload.into_inner();
-
-    match service_data
-        .lock()
-        .unwrap()
-        .user_repo
-        .get_slim_user(&auth_payload.email)
-        .await
-    {
-        Ok(Some((slim_user, hash))) => {
-            if hash == auth_payload.password {
-                let token_result = service_data
-                    .lock()
-                    .unwrap()
-                    .token_issuer
-                    .issue_token(slim_user);
-                match token_result {
-                    Ok(token) => HttpResponse::Ok().json(token),
-                    // TODO: log error
-                    Err(_) => {
-                        HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
-                    }
-                }
-            } else {
-                HttpResponse::Unauthorized()
-                    .json(ServiceError::AuthError(AuthError::IncorrectPassword))
-            }
-        }
-        Ok(None) => HttpResponse::NotFound().json(ServiceError::AuthError(
-            AuthError::UserDoesNotExist(auth_payload.email),
-        )),
-        Err(_) => {
-            // TODO: log error
-            HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
-        }
-    }
-}
-
-pub async fn registration_handler(
-    service_data: web::Data<Mutex<ApplicationData>>,
-    provided_payload: web::Json<UserRegistrationPayload>,
-) -> HttpResponse {
-
-    // TODO: send email
-    // TODO: error handling
-
-    let registration_payload = provided_payload.into_inner();
-
-    match service_data
-        .lock()
-        .unwrap()
-        .user_repo
-        .register_user(&registration_payload)
-        .await
-    {
-        Ok(Some(slim_user)) => {
-            let token_result = service_data
-                .lock()
-                .unwrap()
-                .token_issuer
-                .issue_token(slim_user);
-            match token_result {
-                Ok(token) => HttpResponse::Ok().json(token),
-                // TODO: log error
-                Err(_) => {
-                    HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
-                }
-            }
-        }
-        Ok(None) => {
-            // FIXME
-            HttpResponse::NotFound().json(ServiceError::RegistrationError(
-                RegistrationError::UsernameAlreadyExists(registration_payload.username),
-            ))
-        }
-        Err(e) => {
-            // TODO: log error
-            println!("{:?}", e);
-            HttpResponse::InternalServerError().json(ServiceError::InternalServerError)
-        }
-    }
-}
-
-// TODO: registration
-// TODO: delete account (account owner or admin can delete)
 // TODO: logging
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
-    // database
-    dotenv().ok();
-
-    env_logger::init();
+async fn initialize_user_repo() -> PostgresUserRepo {
+    // If that program fails to connect to the database, it will panic.
+    // We have no way to recover from this.
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let pool = PgPoolOptions::new()
@@ -142,22 +41,38 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Failed to connect to the database!");
 
-    //static MIGRATOR: Migrator = sqlx::migrate!();
-    //MIGRATOR.run(&pool).await?;
+    PostgresUserRepo::new(Arc::new(pool))
+}
 
-    let shared_pool = Arc::new(pool);
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
-    // Token issuer
-    let issuer = TokenIssuer::from_rsa_pem("resources/private.pem")
+    tracing_subscriber::fmt::init();
+
+    let token_issuer = TokenIssuer::from_rsa_pem("resources/private.pem")
         .await
         .unwrap();
 
-    let user_repo = PostgresUserRepo::new(shared_pool.clone());
+    let token_validator = TokenValidator::from_rsa_pem("resources/public.pem")
+        .await
+        .unwrap();
 
-    let app_data =  web::Data::new(Mutex::new(ApplicationData {
-        token_issuer: issuer,
+    let user_repo = initialize_user_repo().await;
+    let smtp_transport = SmtpTransport::builder_dangerous("smtp")
+        .port(2525)
+        .build();
+
+    let app_data = web::Data::new(ApplicationData::new(
+        token_issuer,
+        token_validator,
         user_repo,
-    }));
+        smtp_transport,
+    ));
+
+    let address = env::var("AUTH_SERVICE_ADDRESS").expect("AUTH_SERVICE_ADDRESS must be set");
+
+    info!("Starting http server on {}", address);
 
     HttpServer::new(move || {
         App::new()
@@ -165,8 +80,10 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_data.clone())
             .route("/auth", web::post().to(auth_handler))
             .route("/registration", web::post().to(registration_handler))
+            .route("/confirmation/{token}", web::get().to(confirmation_handler))
+        //.route("/registration", web::post().to(registration_handler))
     })
-    .bind(env::var("AUTH_SERVICE_ADDRESS").expect("AUTH_SERVICE_ADDRESS must be set"))?
+    .bind(address)?
     .run()
     .await
 }

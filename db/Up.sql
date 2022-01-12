@@ -11,7 +11,8 @@ CREATE TABLE registered_user (
   user_role role NOT NULL,
   username TEXT NOT NULL UNIQUE,
   description TEXT,
-  picture_url TEXT
+  picture_url TEXT,
+  created_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE video (
@@ -23,7 +24,7 @@ CREATE TABLE video (
   views INTEGER NOT NULL,
   likes INTEGER NOT NULL,
   dislikes INTEGER NOT NULL,
-  creation_time TIMESTAMP NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   state video_state NOT NULL
 );
 
@@ -41,9 +42,9 @@ COMMIT;
 BEGIN TRANSACTION;
 
 
-INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.');
-INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.');
-INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.');
+--INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.');
+--INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.');
+--INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.');
 
 
 COMMIT;

@@ -1,0 +1,451 @@
+openapi: 3.0.0
+info:
+  title: PussyHub API
+  version: 1.0.0
+  description: testing auto generation
+paths:
+  /users/auth:
+    get:
+      summary: Logs in an user
+      tags:
+        - "user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              
+      responses:
+        '200':    # status code
+          description: Returns User JWT Token
+          content:  
+            text/plain:
+                schema:
+                  type: string
+  /users/registration:
+    get:
+      summary: Registers an user
+      tags:
+        - "user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                description:
+                  type: string
+                picture_url:
+                  type: string
+      responses:
+        '200':    # status code
+          description: Returns User JWT Token
+          content:  
+            text/plain:
+                schema:
+                  type: string
+  /users/{id}:
+    get:
+      summary: Get User by Id
+      tags:
+        - "user"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of User
+      responses:
+        '200':    # status code
+          description: Serialized user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /videos/{id}:
+    get:
+      summary: Gets video by Id
+      tags:
+        - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
+      responses:
+        '200':    # status code
+          description: Video JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoWithId'
+    put:
+      summary: Updates video by Id
+      tags:
+        - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
+      responses:
+        '200':    # status code
+          description: Updated Video JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoWithId'
+    delete:
+      summary: Deletes video by Id
+      tags:
+        - "video"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
+      responses:
+        '200':    # status code
+          description: OK
+  /videos:
+    post:
+      summary: Creates new video
+      tags:
+        - "video"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      responses:
+        '200':    # status code
+          description: Video JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoWithId'
+    get:
+      summary: List all videos
+      tags:
+        - "video"
+      parameters:
+          - in: query
+            name: page
+            schema:
+              type: integer
+            required: false
+            description: Page number
+      responses:
+        '200':    # status code
+          description: A JSON array of Videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VideoWithId'
+  /categories/{id}:
+    get:
+      summary: Gets category by Id
+      tags:
+        - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
+      responses:
+        '200':    # status code
+          description: Category JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
+    put:
+      summary: Updates category by Id
+      tags:
+        - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
+      responses:
+        '200':    # status code
+          description: Updated Category JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
+    delete:
+      summary: Deletes category by Id
+      tags:
+        - "category"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Category
+      responses:
+        '200':    # status code
+          description: OK
+  /categories:
+    post:
+      summary: Creates new category
+      tags:
+        - "category"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':    # status code
+          description: A JSON of Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryWithId'
+    get:
+      summary: List all categories
+      tags:
+        - "category"
+      responses:
+        '200':    # status code
+          description: A JSON array of Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /categories/{id}/videos:
+    get:
+      summary: Gets videos in given category
+      tags:
+        - "video"
+        - "category"
+      parameters:
+          - in: query
+            name: page
+            schema:
+              type: integer
+            required: false
+            description: Page number
+      responses:
+        '200':    # status code
+          description: A JSON array of Videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Video'
+  /videos/{id}/like:
+    post:
+      summary: Gives video like
+      tags:
+        - "rating"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
+      responses:
+        '200': 
+          description: OK
+  /videos/{id}/dislike:
+    post:
+      summary: Gives video dislike
+      tags:
+        - "rating"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video
+      responses:
+        '200':
+          description: OK
+  /videos/{id}/upload:
+    post:
+      summary: Uploads video (should support partial uploads)
+      tags:
+        - video
+        - upload
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Video to upload
+      responses:
+        '200':
+          description: OK
+  /user/{id}/profile_upload:
+    post:
+      summary: Uploads profile picture for user
+      tags:
+        - user
+        - upload
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of User to upload
+      responses:
+        '200':
+          description: TODO
+  /streams: 
+    get:
+      summary: List current airing streams
+      tags:
+        - stream
+      responses:
+        '200':
+          description: TODO
+    post:
+      summary: Create stream and return stream token
+      tags:
+        - stream
+      responses:
+        '200':
+          description: TODO
+  /streams/{id}:
+    get:
+      summary: Get stream metadata
+      tags:
+        - stream
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of Stream
+      responses:
+        '200':
+          description: TODO
+  /streams/{token}:
+    post:
+      summary: Get stream metadata
+      tags:
+        - stream
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Stream token
+      responses:
+        '200':
+          description: TODO
+components:
+  schemas:
+    ROLE:
+      type: string
+      enum: [admin, user]
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        user_role:
+          $ref: '#/components/schemas/ROLE'
+        username:
+          type: string
+        description:
+          type: string
+        picture_url:
+          type: string
+    Video:
+      type: object
+      properties:
+        creator_id:
+          type: integer
+        name:
+          type: string
+        preview_url:
+          type: string
+        video_url:
+          type: string
+        views:
+          type: integer
+        likes:
+          type: integer
+        dislikes:
+          type: integer
+        created_at:
+          type: string
+          description: ISO 8061 date string
+        rating:
+          $ref: '#/components/schemas/Rating'
+        category:
+          required: false
+          $ref: '#/components/schemas/Category'
+    VideoWithId:
+      allOf:
+        - type: object
+          properties:
+            id: 
+              type: integer
+        - $ref: '#/components/schemas/Video'
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+    CategoryWithId:
+      allOf:
+        - type: object
+          properties:
+            id: 
+              type: integer
+        - $ref: '#/components/schemas/Category'
+    Rating:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        rating:
+          type: integer
+
+      
