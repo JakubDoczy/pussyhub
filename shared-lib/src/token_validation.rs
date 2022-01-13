@@ -12,8 +12,7 @@ use serde::de::DeserializeOwned;
 pub const ALGORITHM: Algorithm = Algorithm::RS256;
 
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
-#[sqlx(type_name = "role", rename_all = "snake_case")]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum Role {
     Admin,
     User,
