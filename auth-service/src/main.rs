@@ -25,10 +25,6 @@ mod database;
 mod registration;
 mod token_issuer;
 
-// https://dev.to/mygnu/auth-web-microservice-with-rust-using-actix-web---complete-tutorial-part-2-k3a
-// https://gitlab.com/mygnu/rust-auth-server/-/tree/master/src
-
-// TODO: logging
 
 async fn initialize_user_repo() -> PostgresUserRepo {
     // If that program fails to connect to the database, it will panic.
@@ -50,10 +46,7 @@ async fn main() -> std::io::Result<()> {
 
     tracing_subscriber::fmt::init();
 
-    let token_issuer = TokenIssuer::from_rsa_pem("resources/private.pem")
-        .await
-        .unwrap();
-
+    let token_issuer = TokenIssuer::from_rsa_pem(include_str!("../resources/private.pem")).unwrap();
     let token_validator = TokenValidator::from_rsa_pem(include_str!("../resources/public.pem")).unwrap();
 
     let user_repo = initialize_user_repo().await;
