@@ -52,3 +52,12 @@ services:
         condition: service_started
       db:
         condition: service_healthy
+  client:
+    container_name: client
+    build:
+      dockerfile: client/Dockerfile
+    ports:
+      - 5100:5000
+    depends_on:
+      db:
+        condition: service_healthy
