@@ -1,6 +1,7 @@
 use jwt_simple::prelude::*;
 use serde::{Deserialize, Serialize};
 use anyhow::Error;
+use serde::de::DeserializeOwned;
 
 // Quickstart:
 // let validator = TokenValidator("/resources/public.pem")
@@ -41,7 +42,7 @@ impl TokenValidator {
     }
 
     pub fn decode<T: DeserializeOwned + Serialize>(&self, token: &str) -> Result<JWTClaims<T>, Error> {
-        self.public_key.verify_token::<T>(&token, None)?;
+        self.public_key.verify_token::<T>(&token, None)
     }
 
     pub fn validate(&self, token: &str) -> Result<SlimUser, Error> {
