@@ -4,7 +4,7 @@ use parking_lot::RwLock;
 use shared_lib::token_validation::{SlimUser, TokenValidator};
 
 const TOKEN_KEY: &str = "pussyhub.jwt.token";
-const PUBLIC_KEY_PEM: &[u8] = include_bytes!("../../resources/public.pem");
+const PUBLIC_KEY_PEM: &str = include_str!("../../resources/public.pem");
 
 lazy_static! {
     /// Jwt token read from local storage.

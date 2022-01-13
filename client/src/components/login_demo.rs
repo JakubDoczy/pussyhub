@@ -58,7 +58,7 @@ impl Component for LoginDemo {
         return html! {
             <>
             {
-                if is_auth() {
+                if !is_auth() {
                 html!{ <button onclick={self.link.callback(|_| Msg::Login)}>{"Login"}</button> }
             }
                 else {
