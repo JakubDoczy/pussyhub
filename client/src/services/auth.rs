@@ -1,5 +1,3 @@
-use lazy_static::lazy_static;
-
 use shared_lib::error::auth::AuthError;
 use shared_lib::error::registration::RegistrationError;
 use shared_lib::payload::auth::AuthPayload;
@@ -27,7 +25,7 @@ pub fn user_info() -> SlimUser {
 }
 
 /// Is user authenticated
-pub async fn is_auth() -> bool {
+pub fn is_auth() -> bool {
     user_info().role != Role::Unauthorized
 }
 
@@ -81,6 +79,6 @@ pub async fn register(register_info: UserRegistrationPayload) -> Result<SlimUser
 }
 
 /// Logout a user
-pub async fn logout()  {
+pub fn logout()  {
     set_token(None);
 }
