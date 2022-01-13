@@ -54,9 +54,7 @@ async fn main() -> std::io::Result<()> {
         .await
         .unwrap();
 
-    let token_validator = TokenValidator::from_rsa_pem("resources/public.pem")
-        .await
-        .unwrap();
+    let token_validator = TokenValidator::from_rsa_pem(include_bytes!("../resources/public.pem")).unwrap();
 
     let user_repo = initialize_user_repo().await;
     let smtp_transport = SmtpTransport::builder_dangerous("smtp")

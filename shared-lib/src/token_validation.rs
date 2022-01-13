@@ -17,6 +17,7 @@ pub const ALGORITHM: Algorithm = Algorithm::RS256;
 pub enum Role {
     Admin,
     User,
+    Unauthorized
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -49,10 +50,9 @@ pub struct TokenValidator {
 }
 
 impl TokenValidator {
-    pub async fn from_rsa_pem(rsa_pem_file: &str) -> Result<TokenValidator, Error> {
-        let data = tokio::fs::read(rsa_pem_file).await?;
+    pub fn from_rsa_pem(rsa_pem_file: &'static [u8]) -> Result<TokenValidator, Error> {
         let validator = TokenValidator {
-            public_key: DecodingKey::from_rsa_pem(&data)?.into_static(),
+            public_key: DecodingKey::from_rsa_pem(&rsa_pem_file)?,
         };
         Ok(validator)
     }

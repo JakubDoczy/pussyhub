@@ -1,5 +1,7 @@
 mod components;
+mod services;
 use crate::components::home::Home;
+use crate::components::login_demo::LoginDemo;
 
 use yew::{classes, html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{
@@ -98,8 +100,8 @@ impl Component for App {
                                       {"Recommended"}
                                     </p>
                                     <ul class="menu-list">
-                                      <li class="is-right"><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))} class="is-active"><i class="fab fa-css3-alt"></i> {" Your mum"}</a></li>
-                                      <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Test(42)))}><i class="fab fa-js"></i> {" Juicy"}</a></li>
+                                      <li class="is-right"><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))} class="is-active"><i class="fab fa-css3-alt"></i> {"Home"}</a></li>
+                                      <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::LoginDemo))}><i class="fab fa-js"></i> {" Login Demo"}</a></li>
                                       <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))}><i class="fab fa-html5"></i> {" Belle Ralphine"}</a></li>
                                     </ul>
                                     <p class="menu-label">
@@ -119,7 +121,7 @@ impl Component for App {
                                     <Router<AppRoute, ()>
                                         render=Router::render(|switch: AppRoute| {
                                             match switch {
-                                                AppRoute::Test(n) => html! { <h1> {"Test: "} {n} </h1> },
+                                                AppRoute::LoginDemo => html! { <LoginDemo /> },
                                                 AppRoute::Home => html! { <Home /> },
                                                 AppRoute::PageNotFound => html! { <h1> {"Page not found"} </h1> }
                                             }
@@ -209,8 +211,8 @@ impl Component for App {
 
 #[derive(Debug, Copy, Clone, Switch)]
 pub enum AppRoute {
-    #[to = "/test/{n}"]
-    Test(u64),
+    #[to = "/login-demo"]
+    LoginDemo,
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]
