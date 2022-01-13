@@ -42,9 +42,9 @@ COMMIT;
 BEGIN TRANSACTION;
 
 
---INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.');
---INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.');
---INSERT INTO registered_user (email, verified, password, user_role, username, description) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.');
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.', '2016-06-22 19:10:25-07');
 
 
 COMMIT;
