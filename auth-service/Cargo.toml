@@ -25,7 +25,7 @@ sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "postgres", "chro
 anyhow = { version = "1" }
 thiserror = "1.0"
 dotenv = "0.15.0"
-jsonwebtoken = "7"
 lettre = "0.10.0-rc.4"
 tracing = "0.1"
 tracing-subscriber = "0.2"
+jwt-simple="0.10"
