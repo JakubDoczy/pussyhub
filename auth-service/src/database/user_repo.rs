@@ -1,11 +1,28 @@
 use chrono::Utc;
 use shared_lib::token_validation::{Role, SlimUser};
+use serde::{Serialize, Deserialize};
 use sqlx::PgPool;
 use std::sync::Arc;
 
 use shared_lib::payload::registration::UserRegistrationPayload;
 
 use crate::database::error::{DBAuthError, DBEmailVerificationError, DBRegistrationError};
+
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
+#[sqlx(type_name = "role", rename_all = "snake_case")]
+enum SqlRole {
+    Admin,
+    User,
+}
+
+impl From<SqlRole> for Role {
+    fn from(src: SqlRole) -> Self {
+        match src {
+            SqlRole::Admin => Role::Admin,
+            SqlRole::User => Role::User,
+        }
+    }
+}
 
 /// User repository.
 #[derive(Clone)]
@@ -23,7 +40,7 @@ impl PostgresUserRepo {
     pub async fn get_slim_user(&self, email: &str) -> Result<(SlimUser, String), DBAuthError> {
         let rec = sqlx::query!(
             r#"
-            SELECT id, verified, username, password, user_role as "user_role: Role" FROM registered_user WHERE email = $1
+            SELECT id, verified, username, password, user_role as "user_role: SqlRole" FROM registered_user WHERE email = $1
             "#,
             email
         )
@@ -37,7 +54,7 @@ impl PostgresUserRepo {
                     verified: user.verified,
                     username: user.username,
                     email: email.to_string(),
-                    role: user.user_role,
+                    role: Role::from(user.user_role),
                 },
                 user.password,
             )),
