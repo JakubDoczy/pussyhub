@@ -26,14 +26,7 @@ pub struct SlimUser {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct Claims {
-    // Registered claims, defined by standard
-    // checked by default (no need to manually validate)
-    //pub sub: String, // subject
-    pub iat: usize, // issued at
-    pub exp: usize, // expiration date
-
-    // private claims
+pub struct CustomClaims {
     pub user: SlimUser,
 }
 
@@ -47,8 +40,12 @@ impl TokenValidator {
         Ok(Self { public_key: RS256PublicKey::from_pem(rsa_pem_file)? })
     }
 
+    pub fn decode<T: DeserializeOwned + Serialize>(&self, token: &str) -> Result<JWTClaims<T>, Error> {
+        self.public_key.verify_token::<T>(&token, None)?;
+    }
+
     pub fn validate(&self, token: &str) -> Result<SlimUser, Error> {
-        let claims = self.public_key.verify_token::<Claims>(&token, None)?;
+        let claims = self.decode::<CustomClaims>(token)?;
         Ok(claims.custom.user)
     }
 }
