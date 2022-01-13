@@ -52,3 +52,9 @@ services:
         condition: service_started
       db:
         condition: service_healthy
+  stream:
+    container_name: stream
+    image: alqutami/rtmp-hls
+    ports:
+      - 1935:1935
+      - 8080:8080

@@ -1,14 +1,18 @@
-use crate::components::video_player::Video;
+use crate::components::video_player::{Stream, Video};
 use yew::prelude::*;
 
-pub struct Home {}
+pub struct Home {
+  hls_root: &'static str
+}
 
 impl Component for Home {
     type Message = ();
     type Properties = ();
 
     fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
-        Self {}
+        Self {
+          hls_root: "http://localhost:8080"
+        }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
@@ -25,7 +29,7 @@ impl Component for Home {
                 <h3 class="title is-3">{"Live streams "}<i class="fas fa-satellite-dish has-text-danger"></i></h3>
                 <div class="box">
                     <p class="title">{"One"}</p>
-                    <Video src={"https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8"} />
+                    <Stream src={format!("{}/hls/test_stream", self.hls_root)} />
                 </div>
                 <div class="tile is-ancestor">
                   <div class="tile is-4 is-vertical is-parent">
