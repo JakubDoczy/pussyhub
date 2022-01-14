@@ -15,9 +15,15 @@ CREATE TABLE registered_user (
   created_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE category (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE video (
   id BIGSERIAL PRIMARY KEY,
   creator_id BIGINT NOT NULL REFERENCES registered_user(id),
+  category_id BIGINT NOT NULL REFERENCES category(id),
   name TEXT NOT NULL,
   preview_url TEXT NOT NULL,
   video_url TEXT NOT NULL UNIQUE,

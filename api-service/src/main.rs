@@ -13,7 +13,7 @@ use crate::repository::{
 };
 use actix_files::Files;
 
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpServer, middleware};
 
 
 
@@ -44,6 +44,7 @@ async fn main() -> std::io::Result<()> {
         .allow_any_method();
 
         App::new()
+            .wrap(middleware::Logger::default())
             .wrap(cors)
             .app_data(web::Data::new(video_repository.clone()))
             .app_data(web::Data::new(user_repository.clone()))

@@ -3,15 +3,15 @@ use std::sync::Arc;
 use crate::model::video::Video;
 use anyhow::Result;
 use async_trait::async_trait;
-use shared_lib::payload::category::Category;
+use shared_lib::payload::{category::Category, video::VideoWithoutId};
 use sqlx::PgPool;
 use thiserror::Error;
 
 #[async_trait]
 pub trait VideoRepository {
     async fn get_video(&self, id: i64) -> Result<Video, DBVideoError>;
-    async fn update_video(&self, video: Video) -> Result<Video, DBVideoError>;
-    async fn create_video(&self, video: Video) -> Result<Video, DBVideoError>;
+    async fn update_video(&self, id: i64, video: VideoWithoutId) -> Result<Video, DBVideoError>;
+    async fn create_video(&self, video: VideoWithoutId) -> Result<Video, DBVideoError>;
     async fn delete_video(&self, id: i64) -> Result<(), DBVideoError>;
     async fn list_in_category(&self, id: Category) -> Result<Vec<Video>, DBVideoError>;
 }
@@ -58,7 +58,7 @@ impl VideoRepository for PostgresVideoRepository {
         }
     }
 
-    async fn create_video(&self, video: Video) -> Result<Video, DBVideoError> {
+    async fn create_video(&self, video: VideoWithoutId) -> Result<Video, DBVideoError> {
         let res = sqlx::query_as!(Video, 
             r#"
             INSERT INTO video (
@@ -98,13 +98,12 @@ impl VideoRepository for PostgresVideoRepository {
         match res {
             Ok(video) => Ok(video),
             Err(e) => match e {
-                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(video.id)),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
         }
     }
 
-    async fn update_video(&self, video: Video) -> Result<Video, DBVideoError> {
+    async fn update_video(&self, id: i64, video: VideoWithoutId) -> Result<Video, DBVideoError> {
         let res = sqlx::query_as!(Video, 
             r#"
             UPDATE video 
@@ -131,7 +130,7 @@ impl VideoRepository for PostgresVideoRepository {
             video.preview_url,
             video.video_url,
             video.views,
-            video.id
+            id
         )
             .fetch_one(&*self.pg_pool)
             .await;
@@ -139,7 +138,7 @@ impl VideoRepository for PostgresVideoRepository {
         match res {
             Ok(video) => Ok(video),
             Err(e) => match e {
-                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(video.id)),
+                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
         }
