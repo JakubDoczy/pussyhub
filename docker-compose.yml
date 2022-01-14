@@ -44,6 +44,7 @@ services:
   auth:
     container_name: auth
     build:
+      context: ./
       dockerfile: auth-service/Dockerfile
     ports:
       - 8089:8089
@@ -55,6 +56,7 @@ services:
   client:
     container_name: client
     build:
+      context: ./
       dockerfile: client/Dockerfile
     ports:
       - 5100:5000
