@@ -20,7 +20,7 @@ impl Component for Home {
     }
 
     fn view(&self) -> Html {
-        return html! {
+        return html!(
             <>
                 <h3 class="title is-3">{"Live streams "}<i class="fas fa-satellite-dish has-text-danger"></i></h3>
                 <div class="box">
@@ -76,6 +76,6 @@ impl Component for Home {
                   </div>
 
             </>
-        };
+        );
     }
 }

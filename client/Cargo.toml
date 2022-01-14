@@ -25,3 +25,4 @@ uuid = { version = "0.8", features = ["v4", "wasm-bindgen"] }
 parking_lot = "0.10.0"
 lazy_static = "1.4.0"
 gloo = "0.4"
+yewdux = "0.6.2"
