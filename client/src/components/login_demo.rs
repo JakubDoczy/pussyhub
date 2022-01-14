@@ -14,7 +14,6 @@ pub enum Msg {
 
 pub struct LoginDemo {
     link: ComponentLink<Self>,
-    user: SlimUser
 }
 
 impl Component for LoginDemo {
@@ -22,7 +21,7 @@ impl Component for LoginDemo {
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { user: user_info(), link }
+        Self { link }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -39,12 +38,10 @@ impl Component for LoginDemo {
                 false
             }
             Msg::LoginResult(_) => {
-                self.user = user_info();
                 true
             }
             Msg::Logout => {
                 logout();
-                self.user = user_info();
                 true
             }
         }
@@ -55,17 +52,20 @@ impl Component for LoginDemo {
     }
 
     fn view(&self) -> Html {
+        let user = user_info();
+
         return html! {
             <>
             {
                 if !is_auth() {
-                html!{ <button onclick={self.link.callback(|_| Msg::Login)}>{"Login"}</button> }
-            }
+                    html!{ <button onclick={self.link.callback(|_| Msg::Login)}>{"Login"}</button> }
+                }
                 else {
-                html!{ <button onclick={self.link.callback(|_| Msg::Logout)}>{"Logout"}</button> }
+                    html!{ <button onclick={self.link.callback(|_| Msg::Logout)}>{"Logout"}</button> }
+                }
             }
-
-            }
+            <br />
+            { format!("{:?}", user) }
             </>
         };
     }
