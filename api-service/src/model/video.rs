@@ -1,6 +1,6 @@
+use ::serde::{Deserialize, Serialize};
 use chrono::serde::ts_milliseconds;
 use chrono::{DateTime, Utc};
-use ::serde::{Serialize, Deserialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Video {
@@ -14,4 +14,11 @@ pub struct Video {
     pub dislikes: i32,
     #[serde(with = "ts_milliseconds")]
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
+#[sqlx(type_name = "video_state", rename_all = "snake_case")]
+pub enum VideoState {
+    Processing,
+    Published,
 }

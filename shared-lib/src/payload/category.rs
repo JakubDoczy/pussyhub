@@ -6,8 +6,8 @@ pub struct Category {
     pub name: String
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CategoryWithoutId {
-    pub id: i64,
     pub name: String
 }
 

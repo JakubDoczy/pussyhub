@@ -31,13 +31,13 @@ CREATE TABLE video (
   likes INTEGER NOT NULL,
   dislikes INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  state video_state NOT NULL
+  state video_state DEFAULT 'processing' NOT NULL
 );
 
 CREATE TABLE rating (
   video_id BIGINT NOT NULL REFERENCES video(id),
   user_id BIGINT NOT NULL REFERENCES registered_user(id),
-  rating NUMERIC NOT NULL CHECK (ABS(rating) = 1),
+  rating SMALLINT NOT NULL CHECK (ABS(rating) = 1),
   UNIQUE (video_id, user_id)
 );
 

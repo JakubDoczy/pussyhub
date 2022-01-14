@@ -31,12 +31,22 @@ pub struct VideoWithoutId {
     pub category: Category
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VideoRequest {
+    pub creator_id: i64,
+    pub name: String,
+    pub preview_url: String,
+    pub video_url: String,
+    pub created_at: String,
+    pub category: Category
+}
+
 pub type GetVideoResponse = Video;
 
-pub type PutVideoRequest = VideoWithoutId;
+pub type PutVideoRequest = VideoRequest;
 pub type PutVideoResponse = Video;
 
-pub type PostVideoRequest = VideoWithoutId;
+pub type PostVideoRequest = VideoRequest;
 pub type PostVideoResponse = Video;
 
 pub type GetVideos = Vec<Video>;
