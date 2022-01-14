@@ -26,6 +26,18 @@ pub struct SlimUser {
     //hash: String,
 }
 
+impl Default for SlimUser {
+    fn default() -> Self {
+        Self {
+            user_id: 0,
+            email: "".to_string(),
+            verified: false,
+            username: "Guest".to_string(),
+            role: Role::Unauthorized
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CustomClaims {
     pub user: SlimUser,

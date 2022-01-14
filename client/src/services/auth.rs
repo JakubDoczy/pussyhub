@@ -16,13 +16,7 @@ pub fn user_info() -> SlimUser {
             return slim_user;
         }
     }
-    SlimUser {
-        user_id: 0,
-        email: "".to_string(),
-        verified: false,
-        username: "Unknown user".to_string(),
-        role: Role::Unauthorized
-    }
+    SlimUser::default()
 }
 
 /// Is user authenticated
