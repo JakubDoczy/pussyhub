@@ -5,7 +5,8 @@ use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::{Role, SlimUser};
 use crate::services::jwt::{set_token, get_token, validate};
 
-const HOST: &str = "http://auth";
+// TODO set from env
+const HOST: &str = "http://127.0.0.1:8089";
 
 
 /// Get current user info
