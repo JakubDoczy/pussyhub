@@ -1,7 +1,8 @@
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
+use crate::model::category::Category;
 use actix_web::{web, HttpResponse, Responder};
-use shared_lib::payload::category::{CategoryWithoutId, PostCategoryRequest, PutCategoryRequest};
+use shared_lib::payload::category::{GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest, PutCategoryResponse};
 use std::sync::Arc;
 
 #[actix_web::get("/categories/{id}")]
@@ -14,7 +15,7 @@ pub async fn get_category_by_id(
     let response = data.get_category(id).await;
 
     match response {
-        Ok(category) => HttpResponse::Ok().json(category),
+        Ok(category) => HttpResponse::Ok().json(GetCategoryResponse::from(category)),
         Err(e) => HttpResponse::InternalServerError().json(""),
     }
 }
@@ -23,14 +24,14 @@ pub async fn get_category_by_id(
 pub async fn put_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
     params: web::Path<i64>,
-    category: web::Json<CategoryWithoutId>,
+    category: web::Json<PutCategoryRequest>,
 ) -> impl Responder {
     let id = params.into_inner();
 
-    let response = data.update_category(id, category.into_inner()).await;
+    let response = data.update_category(id, Category::from(category.into_inner())).await;
 
     match response {
-        Ok(category) => HttpResponse::Ok().json(category),
+        Ok(category) => HttpResponse::Ok().json(PutCategoryResponse::from(category)),
         Err(e) => HttpResponse::InternalServerError().json(""),
     }
 }
@@ -38,12 +39,12 @@ pub async fn put_category(
 #[actix_web::post("/categories")]
 pub async fn post_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
-    category: web::Json<CategoryWithoutId>,
+    category: web::Json<PostCategoryRequest>,
 ) -> impl Responder {
-    let response = data.create_category(category.into_inner()).await;
+    let response = data.create_category(Category::from(category.into_inner())).await;
 
     match response {
-        Ok(category) => HttpResponse::Ok().json(category),
+        Ok(category) => HttpResponse::Ok().json(PostCategoryResponse::from(category)),
         Err(e) => HttpResponse::InternalServerError().json(""),
     }
 }
@@ -68,6 +69,7 @@ pub async fn list_catgeories(data: web::Data<Arc<PostgresCategoryRepository>>) -
     let response = data.list_categories().await;
 
     match response {
+        // TODO: implement for vect
         Ok(categories) => HttpResponse::Ok().json(categories),
         Err(e) => HttpResponse::InternalServerError().json(""),
     }

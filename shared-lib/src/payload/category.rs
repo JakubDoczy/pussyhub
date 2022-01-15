@@ -7,16 +7,16 @@ pub struct Category {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CategoryWithoutId {
+pub struct CategoryRequest {
     pub name: String
 }
 
 pub type GetCategoryResponse = Category;
 
-pub type PutCategoryRequest = CategoryWithoutId;
+pub type PutCategoryRequest = CategoryRequest;
 pub type PutCategoryResponse = Category;
 
-pub type PostCategoryRequest = CategoryWithoutId;
+pub type PostCategoryRequest = CategoryRequest;
 pub type PostCategoryResponse = Category;
 
-pub type GetCategories = Vec<Category>;
+pub type GetCategoriesResponse = Vec<Category>;
