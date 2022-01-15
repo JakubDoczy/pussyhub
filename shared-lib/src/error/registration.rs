@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use validator::ValidationError;
 
 #[derive(Error, Debug, Serialize, Deserialize, Clone)]
 pub enum RegistrationError {
@@ -10,8 +9,8 @@ pub enum RegistrationError {
     #[error("The email \"{0}\" is already registered.")]
     EmailAlreadyExists(String),
 
-    #[error(transparent)]
-    ValidationError(#[from] validator::ValidationError),
+    #[error("Invalid payload.")]
+    ValidationError,
 
     #[error("Unexpected error.")]
     UnexpectedError,

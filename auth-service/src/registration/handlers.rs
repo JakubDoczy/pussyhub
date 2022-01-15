@@ -17,6 +17,7 @@ use crate::database::user_repo::PostgresUserRepo;
 use crate::registration::invitation::{InvitationIssuer, InvitationValidator};
 use crate::token_issuer::TokenIssuer;
 
+
 macro_rules! shared_call {
     ($app_data:expr, $argument:ident, $method:ident($($method_args:expr),*)) => {
         $app_data.$argument.lock().unwrap().$method($($method_args),*)
@@ -134,9 +135,10 @@ pub(crate) async fn registration_handler(
 
     let registration_payload = provided_payload.into_inner();
 
-    if let Err(e) = registration_payload.validate() {
+    if let Err(e) = registration_payload.validate_content() {
+        debug!("Received invalid registration payload: {:?}", e);
         return HttpResponse::BadRequest()
-            .json(RegistrationError::ValidationError(e));
+            .json(RegistrationError::ValidationError);
     }
 
     let user = match register_user_to_db(&service_data.user_repo, &registration_payload).await {
@@ -174,7 +176,7 @@ pub(crate) async fn registration_handler(
     }
 
     match create_jwt(&service_data.token_issuer, user) {
-        Ok(token) => HttpResponse::Ok().json(token),
+        Ok(token) => HttpResponse::Ok().content_type("application/jwt").body(token),
         Err(e) => {
             error!("Failed to create jwt, error: {:?}", e);
             HttpResponse::InternalServerError().json(RegistrationError::UnexpectedError)
