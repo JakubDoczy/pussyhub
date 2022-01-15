@@ -46,7 +46,7 @@ impl Component for App {
         html!(
             <>
                 <WithDispatch<Header>/>
-                <section class="section">
+                <section class="section" style="flex-grow: 1;">
                     <div class="container">
                         <WithDispatch<AppRouter> />
                     </div>

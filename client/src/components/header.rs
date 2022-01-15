@@ -42,7 +42,7 @@ impl Component for Header {
     fn view(&self) -> Html {
         let user = user_info();
         html!(
-            <section class="hero is-link">
+            <header class="hero is-link">
                 <div class="hero-body">
                     <div class="container content">
                         <div class="columns">
@@ -82,7 +82,7 @@ impl Component for Header {
                         </div>
                     </div>
                 </div>
-            </section>
+            </header>
         )
     }
 }
