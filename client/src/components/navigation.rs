@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use yew_router::agent::{RouteAgentDispatcher, RouteRequest};
-use crate::AppRoute;
+use crate::routes::AppRoute;
 
 pub enum Msg {
     GoToMenu(AppRoute),
