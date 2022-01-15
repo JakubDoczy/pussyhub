@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use validator::ValidationError;
+use validator;
 
 #[derive(Error, Debug, Serialize, Deserialize, Clone)]
 pub enum RegistrationError {

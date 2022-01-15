@@ -17,7 +17,7 @@ pub struct UserRegistrationPayload {
 
 impl UserRegistrationPayload {
 
-    pub fn validate_payload(&self) -> Result<(), ValidationError> {
+    pub fn validate_content(&self) -> Result<(), ValidationError> {
         self.validate()
     }
 
