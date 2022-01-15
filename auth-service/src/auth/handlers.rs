@@ -38,7 +38,7 @@ pub(crate) async fn auth_handler(
                 match token_result {
                     Ok(token) => {
                         debug!("Successfuly created token: {:?}", token);
-                        HttpResponse::Ok().json(token)
+                        HttpResponse::Ok().content_type("application/jwt").body(token)
                     }
                     Err(e) => {
                         error!("Error, failed to issue token {:?}", e);

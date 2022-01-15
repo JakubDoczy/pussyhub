@@ -1,7 +1,11 @@
 [package]
-name = "api-service"
+name = "api_service"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
+
+[[bin]]
+name = "api_service"
+path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

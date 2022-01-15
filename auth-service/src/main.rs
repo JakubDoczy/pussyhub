@@ -2,6 +2,7 @@ use std::env;
 use std::sync::Arc;
 
 use ::dotenv::dotenv;
+use actix_cors::Cors;
 
 use actix_web::{middleware, web, App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
@@ -66,7 +67,10 @@ async fn main() -> std::io::Result<()> {
     info!("Starting http server on {}", address);
 
     HttpServer::new(move || {
+        // TODO proper cors
+        let cors = Cors::permissive();
         App::new()
+            .wrap(cors)
             .wrap(middleware::Logger::default())
             .app_data(app_data.clone())
             .route("/auth", web::post().to(auth_handler))
