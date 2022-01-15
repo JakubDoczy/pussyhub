@@ -11,7 +11,7 @@ pub enum RegistrationError {
     EmailAlreadyExists(String),
 
     #[error(transparent)]
-    ValidationError(#[from] validator::ValidationError),
+    ValidationError(#[from] validator::ValidationErrors),
 
     #[error("Unexpected error.")]
     UnexpectedError,

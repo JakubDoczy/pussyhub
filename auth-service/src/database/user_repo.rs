@@ -76,7 +76,7 @@ impl PostgresUserRepo {
         let rec = sqlx::query!(
             r#"
             INSERT INTO registered_user (email, verified, username, password, user_role, created_at) 
-            VALUES ($1, FALSE, $2, $3, 'user', $4, $5, $6)
+            VALUES ($1, FALSE, $2, $3, 'user', $4)
             RETURNING id
             "#,
             payload.email,

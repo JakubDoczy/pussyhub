@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use validator::{Validate, ValidationError};
+use validator::{Validate, ValidationErrors};
 
 
 #[derive(Debug, Validate, Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct UserRegistrationPayload {
 
 impl UserRegistrationPayload {
 
-    pub fn validate_content(&self) -> Result<(), ValidationError> {
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
         self.validate()
     }
 
