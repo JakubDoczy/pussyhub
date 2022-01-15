@@ -1,5 +1,5 @@
 use shared_lib::error::auth::AuthError;
-use shared_lib::error::registration::RegistrationError;
+use shared_lib::error::registration::{EmailVerificationError, RegistrationError};
 use shared_lib::payload::auth::AuthPayload;
 use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::{Role, SlimUser};
@@ -76,4 +76,24 @@ pub async fn register(register_info: UserRegistrationPayload) -> Result<SlimUser
 /// Logout a user
 pub fn logout()  {
     set_token(None);
+}
+
+
+/// Validate email confirmation token
+pub async fn confirm_email(confirmation_token: String) -> Result<String, EmailVerificationError> {
+    let response = reqwest::Client::new()
+        .request(reqwest::Method::GET, format!("{}/confirmation/{}", HOST, confirmation_token))
+        .send().await;
+
+    if let Ok(data) = response {
+        if data.status().is_success() {
+            if let Ok(res) =  data.text().await {
+                return Ok(res);
+            }
+        }
+        else if let Ok(err) = data.json::<EmailVerificationError>().await {
+            return Err(err);
+        }
+    }
+    Err(EmailVerificationError::UnexpectedError)
 }

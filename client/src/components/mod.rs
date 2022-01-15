@@ -6,3 +6,4 @@ pub mod header;
 pub mod footer;
 pub mod login;
 pub mod register;
+pub mod email_confirmation;
