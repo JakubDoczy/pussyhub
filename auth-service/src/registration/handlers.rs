@@ -137,7 +137,7 @@ pub(crate) async fn registration_handler(
 
     if let Err(e) = registration_payload.validate_content() {
         return HttpResponse::BadRequest()
-            .json(RegistrationError::ValidationError(e));
+            .json(RegistrationError::ValidationError);
     }
 
     let user = match register_user_to_db(&service_data.user_repo, &registration_payload).await {
