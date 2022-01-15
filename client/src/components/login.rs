@@ -63,7 +63,12 @@ impl Component for Login {
             }
             Msg::LoginResult(response) => {
                 match response {
-                    Ok(_) => self.dispatch.reduce(|s| s.is_auth = true),
+                    Ok(_) => {
+                        self.dispatch.reduce(|s| s.is_auth = true);
+                        self.email = String::new();
+                        self.pass = String::new();
+                        self.error_info = None;
+                    },
                     Err(err) => self.error_info =  Some( match err {
                         AuthError::UserDoesNotExist(_) | AuthError::IncorrectPassword => "The email or password is incorrect".to_string(),
                         AuthError::UnexpectedError => "Unexpected error".to_string()
