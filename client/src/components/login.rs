@@ -97,7 +97,7 @@ impl Component for Login {
                 <ybc::Field>
                     <label class={"label"}>{"Email"}</label>
                     <ybc::Control classes={classes!("has-icons-left")}>
-                        <ybc::Input name={"username"} value=self.email.clone() update=self.link.callback(|s| Msg::UpdateEmail(s)) placeholder={"Email"}></ybc::Input>
+                        <ybc::Input name={"email"} value=self.email.clone() update=self.link.callback(|s| Msg::UpdateEmail(s)) r#type=InputType::Email placeholder={"Email"}></ybc::Input>
                         <ybc::Icon classes={classes!("is-small", "is-left")}>
                             <i class={"fas fa-user"}></i>
                         </ybc::Icon>
