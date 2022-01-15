@@ -6,8 +6,9 @@ use yewtil::NeqAssign;
 
 use crate::components::home::Home;
 use crate::components::login::Login;
+use crate::components::register::Register;
+use crate::components::email_confirmation::EmailConfirmation;
 use crate::components::main_layout::MainLayout;
-use crate::components::plain_layout::PlainLayout;
 use crate::State;
 
 pub struct AppRouter {
@@ -36,9 +37,10 @@ impl Component for AppRouter {
                 render=Router::render(|switch: AppRoute| {
                     match switch {
                         AppRoute::Home => html! { <MainLayout> <Home /> </MainLayout> },
-                        AppRoute::PageNotFound => html! { <PlainLayout> <h1> {"Page not found"} </h1> </PlainLayout> },
-                        AppRoute::Login => html! { <PlainLayout> <WithDispatch<Login> /> </PlainLayout> },
-                        AppRoute::Register => html! {}
+                        AppRoute::PageNotFound => html! { <h1> {"Page not found"} </h1> },
+                        AppRoute::Login => html! { <WithDispatch<Login> /> },
+                        AppRoute::Register => html! { <WithDispatch<Register> />  },
+                        AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> }
                     }
                 })
             />
@@ -46,12 +48,14 @@ impl Component for AppRouter {
     }
 }
 
-#[derive(Debug, Copy, Clone, Switch)]
+#[derive(Debug, Clone, Switch)]
 pub enum AppRoute {
     #[to = "/login"]
     Login,
     #[to = "/register"]
     Register,
+    #[to = "/email_confirmation/{confirmation_token}"]
+    EmailConfirmation(String),
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]
