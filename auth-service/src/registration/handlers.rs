@@ -135,7 +135,7 @@ pub(crate) async fn registration_handler(
 
     let registration_payload = provided_payload.into_inner();
 
-    if let Err(e) = registration_payload.validate() {
+    if let Err(e) = registration_payload.validate_payload() {
         return HttpResponse::BadRequest()
             .json(RegistrationError::ValidationError(e));
     }
