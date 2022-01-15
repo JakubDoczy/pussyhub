@@ -17,7 +17,7 @@ pub async fn get_video_by_id(
 
     match response {
         Ok(video) => HttpResponse::Ok().json(GetVideoResponse::from(video)),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -33,7 +33,7 @@ pub async fn put_video_by_id(
 
     match response {
         Ok(video) => HttpResponse::Ok().json(PutVideoResponse::from(video)),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -46,7 +46,7 @@ pub async fn post_video(
 
     match response {
         Ok(video) => HttpResponse::Ok().json(PostVideoResponse::from(video)),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -61,7 +61,7 @@ pub async fn delete_video(
 
     match response {
         Ok(video) => HttpResponse::Ok().json(""),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -72,7 +72,7 @@ pub async fn list_videos(data: web::Data<Arc<PostgresVideoRepository>>) -> impl 
     match response {
         Ok(video) => HttpResponse::Ok().json(video),
         Err(e) =>
-            HttpResponse::InternalServerError().json(""),
+            HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -86,6 +86,6 @@ pub async fn list_videos_in_category(
 
     match response {
         Ok(videos) => HttpResponse::Ok().json(from_videos(videos)),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }

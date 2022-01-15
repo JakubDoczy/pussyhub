@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 use thiserror::Error;
 use crate::model::category::Category;
+use serde::Serialize;
 
 #[async_trait]
 pub trait VideoRepository {
@@ -307,7 +308,7 @@ impl VideoRepository for PostgresVideoRepository {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Serialize)]
 pub enum DBVideoError {
     #[error("The database does not contain video \"{0}\".")]
     VideoDoesNotExist(i64),

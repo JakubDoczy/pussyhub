@@ -5,7 +5,6 @@ use shared_lib::payload::category::CategoryResponse;
 use shared_lib::payload::rating::Rating;
 use shared_lib::payload::video::{GetVideos, VideoRequest, VideoResponse};
 use crate::model::category::Category;
-use crate::utils::VecFrom;
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Video {

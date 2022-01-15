@@ -25,8 +25,8 @@ pub async fn like_video(
         .await;
 
     match response {
-        Ok(_) => HttpResponse::Ok().json(""),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Ok(_) => HttpResponse::Ok().json(()),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -51,7 +51,7 @@ pub async fn dislike_video(
         .await;
 
     match response {
-        Ok(_) => HttpResponse::Ok().json(""),
-        Err(e) => HttpResponse::InternalServerError().json(""),
+        Ok(_) => HttpResponse::Ok().json(()),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
