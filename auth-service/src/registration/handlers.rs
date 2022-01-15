@@ -5,6 +5,7 @@ use actix_web::{web, HttpResponse};
 use anyhow::Error;
 use lettre::{Message, SmtpTransport, Transport};
 use tracing::{debug, error};
+use validator::traits::Validate;
 
 use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::error::registration::{EmailVerificationError, RegistrationError};
@@ -16,6 +17,7 @@ use crate::application_data::ApplicationData;
 use crate::database::user_repo::PostgresUserRepo;
 use crate::registration::invitation::{InvitationIssuer, InvitationValidator};
 use crate::token_issuer::TokenIssuer;
+
 
 macro_rules! shared_call {
     ($app_data:expr, $argument:ident, $method:ident($($method_args:expr),*)) => {
