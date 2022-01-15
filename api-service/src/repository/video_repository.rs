@@ -4,15 +4,15 @@ use crate::model::user::User;
 use crate::model::video::{Video, VideoState};
 use anyhow::Result;
 use async_trait::async_trait;
-use shared_lib::payload::video::{VideoRequest};
 use sqlx::PgPool;
 use thiserror::Error;
+use crate::model::category::Category;
 
 #[async_trait]
 pub trait VideoRepository {
     async fn get_video(&self, id: i64) -> Result<Video, DBVideoError>;
-    async fn update_video(&self, id: i64, video: VideoRequest) -> Result<Video, DBVideoError>;
-    async fn create_video(&self, video: VideoRequest) -> Result<Video, DBVideoError>;
+    async fn update_video(&self, id: i64, video: Video) -> Result<Video, DBVideoError>;
+    async fn create_video(&self, video: Video) -> Result<Video, DBVideoError>;
     async fn delete_video(&self, id: i64) -> Result<(), DBVideoError>;
     async fn list_in_category(&self, category: i64) -> Result<Vec<Video>, DBVideoError>;
     async fn get_videos(&self) -> Result<Vec<Video>, DBVideoError>;
@@ -33,28 +33,30 @@ impl PostgresVideoRepository {
 #[async_trait]
 impl VideoRepository for PostgresVideoRepository {
     async fn get_video(&self, id: i64) -> Result<Video, DBVideoError> {
-        let res = sqlx::query_as!(
+        let rec = sqlx::query_as!(
             Video,
             r#"
             SELECT 
-                id, 
+                video.id as "id?",
                 creator_id, 
-                name, 
+                video.name as name,
                 preview_url, 
                 video_url, 
                 views, 
                 likes, 
                 dislikes, 
-                created_at 
-            FROM video 
-            WHERE id = $1
+                created_at,
+                category.id as category_id,
+                category.name as "category_name?"
+            FROM video INNER JOIN category ON (category.id = video.category_id)
+            WHERE video.id = $1
             "#,
             id: i64
         )
         .fetch_one(&*self.pg_pool)
         .await;
 
-        match res {
+        match rec {
             Ok(video) => Ok(video),
             Err(e) => match e {
                 sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
@@ -63,7 +65,7 @@ impl VideoRepository for PostgresVideoRepository {
         }
     }
 
-    async fn update_video(&self, id: i64, video: VideoRequest) -> Result<Video, DBVideoError> {
+    async fn update_video(&self, id: i64, video: Video) -> Result<Video, DBVideoError> {
         let res = sqlx::query_as!(
             Video,
             r#"
@@ -75,7 +77,7 @@ impl VideoRepository for PostgresVideoRepository {
                 video_url = $4
             WHERE id = $5
             RETURNING
-                id,
+                video.id as "id?",
                 creator_id,
                 name,
                 preview_url,
@@ -103,7 +105,7 @@ impl VideoRepository for PostgresVideoRepository {
         }
     }
 
-    async fn create_video(&self, video: VideoRequest) -> Result<Video, DBVideoError> {
+    async fn create_video(&self, video: Video) -> Result<Video, DBVideoError> {
         let res = sqlx::query_as!(
             Video,
             r#"
@@ -120,7 +122,7 @@ impl VideoRepository for PostgresVideoRepository {
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING
-                id,
+                video.id as "id?",
                 creator_id,
                 name,
                 preview_url,
@@ -138,7 +140,7 @@ impl VideoRepository for PostgresVideoRepository {
             0,
             0,
             chrono::offset::Utc::now(),
-            video.category.id
+            video.category_id
         )
         .fetch_one(&*self.pg_pool)
         .await;
@@ -176,7 +178,7 @@ impl VideoRepository for PostgresVideoRepository {
             Video,
             r#"
             SELECT 
-                id, 
+                video.id as "id?",
                 creator_id, 
                 name, 
                 preview_url, 
@@ -184,7 +186,7 @@ impl VideoRepository for PostgresVideoRepository {
                 views, 
                 likes, 
                 dislikes, 
-                created_at 
+                created_at
             FROM video
             WHERE category_id = $1
             "#,
@@ -206,7 +208,7 @@ impl VideoRepository for PostgresVideoRepository {
             Video,
             r#"
             SELECT
-                id,
+                video.id as "id?",
                 creator_id,
                 name,
                 preview_url,

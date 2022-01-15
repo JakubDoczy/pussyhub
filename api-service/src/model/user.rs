@@ -1,5 +1,6 @@
 use ::serde::{Deserialize, Serialize};
 
+// TODO: Temp model until I can get signed user
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct User {
     pub id: i64,

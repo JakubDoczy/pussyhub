@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use shared_lib::payload::category::{Category, CategoryWithoutId};
 use sqlx::PgPool;
 use thiserror::Error;
+use crate::model::category::Category;
 
 #[async_trait]
 pub trait CategoryRepository {
@@ -12,11 +12,11 @@ pub trait CategoryRepository {
     async fn update_category(
         &self,
         id: i64,
-        category: CategoryWithoutId,
+        category: Category,
     ) -> Result<Category, DBCategoryError>;
     async fn create_category(
         &self,
-        category: CategoryWithoutId,
+        category: Category,
     ) -> Result<Category, DBCategoryError>;
     async fn delete_category(&self, id: i64) -> Result<(), DBCategoryError>;
     async fn list_categories(&self) -> Result<Vec<Category>, DBCategoryError>;
@@ -39,7 +39,7 @@ impl CategoryRepository for PostgresCategoryRepository {
             Category,
             r#"
             SELECT 
-                id, 
+                id as "id?",
                 name
             FROM category 
             WHERE id = $1
@@ -61,7 +61,7 @@ impl CategoryRepository for PostgresCategoryRepository {
     async fn update_category(
         &self,
         id: i64,
-        category: CategoryWithoutId,
+        category: Category,
     ) -> Result<Category, DBCategoryError> {
         let res = sqlx::query_as!(
             Category,
@@ -71,7 +71,7 @@ impl CategoryRepository for PostgresCategoryRepository {
                 name = $1
             WHERE id = $2
             RETURNING
-                id,
+                id as "id?",
                 name
             "#,
             category.name,
@@ -91,7 +91,7 @@ impl CategoryRepository for PostgresCategoryRepository {
 
     async fn create_category(
         &self,
-        category: CategoryWithoutId,
+        category: Category,
     ) -> Result<Category, DBCategoryError> {
         let res = sqlx::query_as!(
             Category,
@@ -101,7 +101,7 @@ impl CategoryRepository for PostgresCategoryRepository {
             )
             VALUES ($1)
             RETURNING
-                id,
+                id as "id?",
                 name
             "#,
             category.name
@@ -143,7 +143,7 @@ impl CategoryRepository for PostgresCategoryRepository {
             Category,
             r#"
             SELECT 
-                id,
+                id as "id?",
                 name
             FROM category 
             "#

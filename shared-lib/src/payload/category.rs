@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Category {
+pub struct CategoryResponse {
     pub id: i64,
     pub name: String
 }
@@ -11,12 +11,12 @@ pub struct CategoryRequest {
     pub name: String
 }
 
-pub type GetCategoryResponse = Category;
+pub type GetCategoryResponse = CategoryResponse;
 
 pub type PutCategoryRequest = CategoryRequest;
-pub type PutCategoryResponse = Category;
+pub type PutCategoryResponse = CategoryResponse;
 
 pub type PostCategoryRequest = CategoryRequest;
-pub type PostCategoryResponse = Category;
+pub type PostCategoryResponse = CategoryResponse;
 
-pub type GetCategoriesResponse = Vec<Category>;
+pub type GetCategoriesResponse = Vec<CategoryResponse>;

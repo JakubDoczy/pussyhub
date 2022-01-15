@@ -1,9 +1,9 @@
 use serde::{Serialize, Deserialize};
 
-use super::{rating::Rating, category::Category};
+use super::{rating::Rating, category::CategoryResponse};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Video {
+pub struct VideoResponse {
     pub id: i64,
     pub creator_id: i64,
     pub name: String,
@@ -14,21 +14,7 @@ pub struct Video {
     pub dislikes: i32,
     pub created_at: String,
     pub rating: Rating,
-    pub category: Category
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct VideoWithoutId {
-    pub creator_id: i64,
-    pub name: String,
-    pub preview_url: String,
-    pub video_url: String,
-    pub views: i32,
-    pub likes: i32,
-    pub dislikes: i32,
-    pub created_at: String,
-    pub rating: Rating,
-    pub category: Category
+    pub category: CategoryResponse
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,16 +23,15 @@ pub struct VideoRequest {
     pub name: String,
     pub preview_url: String,
     pub video_url: String,
-    pub created_at: String,
-    pub category: Category
+    pub category: i64
 }
 
-pub type GetVideoResponse = Video;
+pub type GetVideoResponse = VideoResponse;
 
 pub type PutVideoRequest = VideoRequest;
-pub type PutVideoResponse = Video;
+pub type PutVideoResponse = VideoResponse;
 
 pub type PostVideoRequest = VideoRequest;
-pub type PostVideoResponse = Video;
+pub type PostVideoResponse = VideoResponse;
 
-pub type GetVideos = Vec<Video>;
+pub type GetVideos = Vec<VideoResponse>;

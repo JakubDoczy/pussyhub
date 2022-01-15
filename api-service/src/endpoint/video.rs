@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use actix_web::{web, HttpResponse, Responder};
-use shared_lib::payload::video::{GetVideoResponse, PostVideoRequest, PutVideoRequest, VideoRequest, VideoWithoutId};
+use shared_lib::payload::video::{GetVideoResponse, PostVideoRequest, PutVideoRequest, VideoRequest};
+use crate::model::video::Video;
 
 use crate::repository::video_repository::{PostgresVideoRepository, VideoRepository};
 
@@ -24,11 +25,11 @@ pub async fn get_video_by_id(
 pub async fn put_video_by_id(
     data: web::Data<Arc<PostgresVideoRepository>>,
     params: web::Path<i64>,
-    video: web::Json<VideoRequest>,
+    video: web::Json<PutVideoRequest>,
 ) -> impl Responder {
     let id = params.into_inner();
 
-    let response = data.update_video(id, video.into_inner()).await;
+    let response = data.update_video(id, Video::from(video.into_inner())).await;
 
     match response {
         Ok(video) => HttpResponse::Ok().json(video),
@@ -39,9 +40,9 @@ pub async fn put_video_by_id(
 #[actix_web::post("/videos")]
 pub async fn post_video(
     data: web::Data<Arc<PostgresVideoRepository>>,
-    video: web::Json<VideoRequest>,
+    video: web::Json<PostVideoRequest>,
 ) -> impl Responder {
-    let response = data.create_video(video.into_inner()).await;
+    let response = data.create_video(Video::from(video.into_inner())).await;
 
     match response {
         Ok(video) => HttpResponse::Ok().json(video),
