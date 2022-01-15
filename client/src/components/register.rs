@@ -1,7 +1,7 @@
 use shared_lib::error::registration::RegistrationError;
 use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::SlimUser;
-use crate::services::auth::{is_auth, login, logout, register, user_info};
+use crate::services::auth::{is_auth, register};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use ybc::InputType;
@@ -105,8 +105,6 @@ impl Component for Register {
             Some(error) => html! { <ybc::Notification classes={classes!("is-danger")}> { error } </ybc::Notification> },
             None => html!{}
         };
-
-        let user = user_info();
 
         let register_form = html!(
             <ybc::Box>
