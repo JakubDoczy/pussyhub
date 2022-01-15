@@ -1,8 +1,8 @@
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
-use crate::model::category::Category;
+use crate::model::category::{Category, from_categories};
 use actix_web::{web, HttpResponse, Responder};
-use shared_lib::payload::category::{GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest, PutCategoryResponse};
+use shared_lib::payload::category::{GetCategoriesResponse, GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest, PutCategoryResponse};
 use std::sync::Arc;
 
 #[actix_web::get("/categories/{id}")]
@@ -70,7 +70,7 @@ pub async fn list_catgeories(data: web::Data<Arc<PostgresCategoryRepository>>) -
 
     match response {
         // TODO: implement for vect
-        Ok(categories) => HttpResponse::Ok().json(categories),
+        Ok(categories) => HttpResponse::Ok().json(from_categories(categories)),
         Err(e) => HttpResponse::InternalServerError().json(""),
     }
 }

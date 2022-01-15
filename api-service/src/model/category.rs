@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use shared_lib::payload::category::{CategoryRequest, CategoryResponse, GetCategoriesResponse, GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest, PutCategoryResponse};
+use crate::utils::VecFrom;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Category {
@@ -23,4 +24,12 @@ impl From<Category> for CategoryResponse {
             name: category.name
         }
     }
+}
+
+pub fn from_categories(categories: Vec<Category>) -> GetCategoriesResponse {
+    let mut response = GetCategoriesResponse::new();
+    for category in categories {
+        response.push(CategoryResponse::from(category));
+    }
+    response
 }

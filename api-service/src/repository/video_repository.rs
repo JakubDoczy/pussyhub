@@ -66,8 +66,7 @@ impl VideoRepository for PostgresVideoRepository {
     }
 
     async fn update_video(&self, id: i64, video: Video) -> Result<Video, DBVideoError> {
-        let res = sqlx::query_as!(
-            Video,
+        let res = sqlx::query!(
             r#"
             UPDATE video
             SET
@@ -76,16 +75,6 @@ impl VideoRepository for PostgresVideoRepository {
                 preview_url = $3,
                 video_url = $4
             WHERE id = $5
-            RETURNING
-                video.id as "id?",
-                creator_id,
-                name,
-                preview_url,
-                video_url,
-                views,
-                likes,
-                dislikes,
-                created_at
             "#,
             video.creator_id,
             video.name,
@@ -93,11 +82,11 @@ impl VideoRepository for PostgresVideoRepository {
             video.video_url,
             id
         )
-        .fetch_one(&*self.pg_pool)
+        .execute(&*self.pg_pool)
         .await;
 
         match res {
-            Ok(video) => Ok(video),
+            Ok(_) => self.get_video(id).await,
             Err(e) => match e {
                 sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
@@ -106,8 +95,7 @@ impl VideoRepository for PostgresVideoRepository {
     }
 
     async fn create_video(&self, video: Video) -> Result<Video, DBVideoError> {
-        let res = sqlx::query_as!(
-            Video,
+        let res = sqlx::query!(
             r#"
             INSERT INTO video (
                 creator_id,
@@ -122,15 +110,7 @@ impl VideoRepository for PostgresVideoRepository {
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING
-                video.id as "id?",
-                creator_id,
-                name,
-                preview_url,
-                video_url,
-                views,
-                likes,
-                dislikes,
-                created_at
+                id
             "#,
             video.creator_id,
             video.name,
@@ -146,7 +126,7 @@ impl VideoRepository for PostgresVideoRepository {
         .await;
 
         match res {
-            Ok(video) => Ok(video),
+            Ok(rec) => self.get_video(rec.id).await,
             Err(e) => match e {
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
@@ -177,17 +157,19 @@ impl VideoRepository for PostgresVideoRepository {
         let res = sqlx::query_as!(
             Video,
             r#"
-            SELECT 
+            SELECT
                 video.id as "id?",
-                creator_id, 
-                name, 
-                preview_url, 
-                video_url, 
-                views, 
-                likes, 
-                dislikes, 
-                created_at
-            FROM video
+                creator_id,
+                video.name as name,
+                preview_url,
+                video_url,
+                views,
+                likes,
+                dislikes,
+                created_at,
+                category.id as category_id,
+                category.name as "category_name?"
+            FROM video INNER JOIN category ON (category.id = video.category_id)
             WHERE category_id = $1
             "#,
             category
@@ -210,18 +192,22 @@ impl VideoRepository for PostgresVideoRepository {
             SELECT
                 video.id as "id?",
                 creator_id,
-                name,
+                video.name as name,
                 preview_url,
                 video_url,
                 views,
                 likes,
                 dislikes,
-                created_at
-            FROM video
-            "#
+                created_at,
+                category.id as category_id,
+                category.name as "category_name?"
+            FROM video INNER JOIN category ON (category.id = video.category_id)
+            WHERE category_id != $1
+            "#,
+            -1 // WTF try remove where clause
         )
-        .fetch_all(&*self.pg_pool)
-        .await;
+            .fetch_all(&*self.pg_pool)
+            .await;
 
         match res {
             Ok(video) => Ok(video),
