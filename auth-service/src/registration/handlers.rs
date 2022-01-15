@@ -174,7 +174,7 @@ pub(crate) async fn registration_handler(
     }
 
     match create_jwt(&service_data.token_issuer, user) {
-        Ok(token) => HttpResponse::Ok().json(token),
+        Ok(token) => HttpResponse::Ok().content_type("application/jwt").body(token),
         Err(e) => {
             error!("Failed to create jwt, error: {:?}", e);
             HttpResponse::InternalServerError().json(RegistrationError::UnexpectedError)
