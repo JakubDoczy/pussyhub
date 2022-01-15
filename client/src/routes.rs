@@ -5,7 +5,7 @@ use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use crate::components::home::Home;
-use crate::components::login_demo::LoginDemo;
+use crate::components::login::Login;
 use crate::components::main_layout::MainLayout;
 use crate::components::plain_layout::PlainLayout;
 use crate::State;
@@ -35,10 +35,9 @@ impl Component for AppRouter {
             <Router<AppRoute, ()>
                 render=Router::render(|switch: AppRoute| {
                     match switch {
-                        AppRoute::LoginDemo => html! { <LoginDemo /> },
                         AppRoute::Home => html! { <MainLayout> <Home /> </MainLayout> },
                         AppRoute::PageNotFound => html! { <PlainLayout> <h1> {"Page not found"} </h1> </PlainLayout> },
-                        AppRoute::Login => html! { <PlainLayout> <WithDispatch<LoginDemo> /> </PlainLayout> },
+                        AppRoute::Login => html! { <PlainLayout> <WithDispatch<Login> /> </PlainLayout> },
                         AppRoute::Register => html! {}
                     }
                 })
@@ -53,8 +52,6 @@ pub enum AppRoute {
     Login,
     #[to = "/register"]
     Register,
-    #[to = "/login-demo"]
-    LoginDemo,
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]

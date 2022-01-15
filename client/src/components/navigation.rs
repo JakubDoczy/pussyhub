@@ -45,7 +45,7 @@ impl Component for Nav {
                 </p>
                 <ul class="menu-list">
                   <li class="is-right"><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))} class="is-active"><i class="fab fa-css3-alt"></i> {"Home"}</a></li>
-                  <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::LoginDemo))}><i class="fab fa-js"></i> {" Login Demo"}</a></li>
+                  <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))}><i class="fab fa-js"></i> {" Login Demo"}</a></li>
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))}><i class="fab fa-html5"></i> {" Belle Ralphine"}</a></li>
                 </ul>
                 <p class="menu-label">
