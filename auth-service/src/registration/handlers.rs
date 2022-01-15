@@ -136,6 +136,7 @@ pub(crate) async fn registration_handler(
     let registration_payload = provided_payload.into_inner();
 
     if let Err(e) = registration_payload.validate_content() {
+        debug!("Received invalid registration payload: {:?}", e);
         return HttpResponse::BadRequest()
             .json(RegistrationError::ValidationError);
     }
