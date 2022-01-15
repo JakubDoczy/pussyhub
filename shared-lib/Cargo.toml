@@ -12,5 +12,6 @@ path = "src/lib.rs"
 [dependencies]
 jwt-simple = "0.10"
 serde = "1.0"
-anyhow = "1"
-thiserror = "1.0"
+anyhow = { version = "1" }
+thiserror = { version = "1.0" }
+validator = { version = "0.12", features = ["derive"] }

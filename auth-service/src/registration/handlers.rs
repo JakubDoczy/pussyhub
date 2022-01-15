@@ -134,6 +134,11 @@ pub(crate) async fn registration_handler(
 
     let registration_payload = provided_payload.into_inner();
 
+    if let Err(e) = registration_payload.validate() {
+        return HttpResponse::BadRequest()
+            .json(RegistrationError::ValidationError(e));
+    }
+
     let user = match register_user_to_db(&service_data.user_repo, &registration_payload).await {
         Err(DBRegistrationError::UsernameAlreadyExists(username)) => {
             debug!(

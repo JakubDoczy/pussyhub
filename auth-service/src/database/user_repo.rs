@@ -82,8 +82,8 @@ impl PostgresUserRepo {
             payload.email,
             payload.username,
             payload.password,
-            payload.description,
-            payload.picture_url,
+            None,
+            None,
             Utc::now()
         )
         .fetch_one(&*self.pg_pool)
