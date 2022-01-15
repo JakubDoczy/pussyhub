@@ -75,15 +75,13 @@ impl PostgresUserRepo {
 
         let rec = sqlx::query!(
             r#"
-            INSERT INTO registered_user (email, verified, username, password, user_role, description, picture_url, created_at) 
+            INSERT INTO registered_user (email, verified, username, password, user_role, created_at) 
             VALUES ($1, FALSE, $2, $3, 'user', $4, $5, $6)
             RETURNING id
             "#,
             payload.email,
             payload.username,
             payload.password,
-            None,
-            None,
             Utc::now()
         )
         .fetch_one(&*self.pg_pool)
