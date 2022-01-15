@@ -5,7 +5,7 @@ use validator::{Validate, ValidationErrors};
 pub struct AuthPayload {
     #[validate(email(message = "not a valid email"))]
     pub email: String,
-    #[validate(length(min = 3, max = 20, message = "must be at least 3 characters long"))]
+    #[validate(length(min = 6, max = 255, message = "must be at least 6 characters long"))]
     pub password: String, // just hash ofc
 }
 
