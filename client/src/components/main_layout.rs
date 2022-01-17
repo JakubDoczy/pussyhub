@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use yewtil::NeqAssign;
 use crate::components::navigation::Nav;
 
 #[derive(Properties, Clone)]
@@ -21,8 +22,8 @@ impl Component for MainLayout {
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender { false }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.props.children.neq_assign(props.children)
     }
 
     fn view(&self) -> Html {
