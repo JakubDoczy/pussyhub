@@ -61,10 +61,10 @@ impl Component for Footer {
                                             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Rust_programming_language_black_logo.svg" />
                                         </span>
                                     </figure>
-                                    <a href="https://www.fi.muni.cz/about" target="_blank" class="content" style="text-decoration: none;">
+                                    <a href="https://www.rust-lang.org/" target="_blank" class="content" style="text-decoration: none;">
                                         <h1 class="title is-size-4">{"Rust"}</h1>
                                         <p class="is-size-5 subtitle">
-                                          {"built with <3, using Rust"}
+                                          {"built with love️, using Rust"}
                                         </p>
                                     </a>
                                 </article>
