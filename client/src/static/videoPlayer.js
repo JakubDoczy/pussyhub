@@ -10,6 +10,7 @@ export function playVideo(elementId, sourceUrl, thumbnailUrl) {
             type: 'application/x-mpegURL'
         }]
     });
+    player.hlsQualitySelector({ displayCurrentQuality: true });
 
     player.play();
 }
