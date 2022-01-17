@@ -9,6 +9,7 @@ pub struct User {
     pub password: String,
     pub description: Option<String>,
     pub picture_url: Option<String>,
+    pub stream_key: String
 }
 
 pub type GetUserResponse = User;
