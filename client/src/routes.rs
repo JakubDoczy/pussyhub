@@ -9,6 +9,8 @@ use crate::components::login::Login;
 use crate::components::register::Register;
 use crate::components::email_confirmation::EmailConfirmation;
 use crate::components::main_layout::MainLayout;
+use crate::components::livestreams::Livestreams;
+use crate::components::videos::Videos;
 use crate::State;
 
 pub struct AppRouter {
@@ -40,7 +42,9 @@ impl Component for AppRouter {
                         AppRoute::PageNotFound => html! { <h1> {"Page not found"} </h1> },
                         AppRoute::Login => html! { <WithDispatch<Login> /> },
                         AppRoute::Register => html! { <WithDispatch<Register> />  },
-                        AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> }
+                        AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> },
+                        AppRoute::Livestreams => html! { <MainLayout> <Livestreams /> </MainLayout> },
+                        AppRoute::Videos => html! { <MainLayout> <Videos /> </MainLayout> },
                     }
                 })
             />
@@ -48,7 +52,7 @@ impl Component for AppRouter {
     }
 }
 
-#[derive(Debug, Clone, Switch)]
+#[derive(Debug, Clone, Switch, PartialEq)]
 pub enum AppRoute {
     #[to = "/login"]
     Login,
@@ -58,6 +62,10 @@ pub enum AppRoute {
     EmailConfirmation(String),
     #[to = "/page-not-found"]
     PageNotFound,
+    #[to = "/livestreams"]
+    Livestreams,
+    #[to = "/videos"]
+    Videos,
     #[to = "/!"]
     Home,
 }
