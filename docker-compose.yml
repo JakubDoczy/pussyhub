@@ -44,6 +44,7 @@ services:
   auth:
     container_name: auth
     build:
+      context: ./
       dockerfile: auth-service/Dockerfile
     ports:
       - 8089:8089
@@ -58,3 +59,13 @@ services:
     ports:
       - 1935:1935
       - 8080:8080
+  client:
+    container_name: client
+    build:
+      context: ./
+      dockerfile: client/Dockerfile
+    ports:
+      - 5100:5000
+    depends_on:
+      db:
+        condition: service_healthy

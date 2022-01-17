@@ -1,4 +1,4 @@
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, TokenData};
+use jwt_simple::prelude::*;
 use serde::{Deserialize, Serialize};
 use anyhow::Error;
 use serde::de::DeserializeOwned;
@@ -9,14 +9,11 @@ use serde::de::DeserializeOwned;
 // let slim_user = validator.validate(token)?;
 
 
-pub const ALGORITHM: Algorithm = Algorithm::RS256;
-
-
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
-#[sqlx(type_name = "role", rename_all = "snake_case")]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum Role {
     Admin,
     User,
+    Unauthorized
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -29,45 +26,40 @@ pub struct SlimUser {
     //hash: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Claims {
-    // Registered claims, defined by standard
-    // checked by default (no need to manually validate)
-    //pub sub: String, // subject
-    pub iat: usize, // issued at
-    pub exp: usize, // expiration date
+impl Default for SlimUser {
+    fn default() -> Self {
+        Self {
+            user_id: 0,
+            email: "".to_string(),
+            verified: false,
+            username: "Guest".to_string(),
+            role: Role::Unauthorized
+        }
+    }
+}
 
-    // private claims
+#[derive(Deserialize, Serialize, Debug)]
+pub struct CustomClaims {
     pub user: SlimUser,
 }
 
 
 pub struct TokenValidator {
-    // this is retarded but we do not plan on having more than one key
-    // IDK what were the authors of DecodingKey thinking when they decided to use lifetime...
-    public_key: DecodingKey<'static>,
+    public_key: RS256PublicKey,
 }
 
 impl TokenValidator {
-    pub async fn from_rsa_pem(rsa_pem_file: &str) -> Result<TokenValidator, Error> {
-        let data = tokio::fs::read(rsa_pem_file).await?;
-        let validator = TokenValidator {
-            public_key: DecodingKey::from_rsa_pem(&data)?.into_static(),
-        };
-        Ok(validator)
+    pub fn from_rsa_pem(rsa_pem_file: &'static str) -> Result<TokenValidator, Error> {
+        Ok(Self { public_key: RS256PublicKey::from_pem(rsa_pem_file)? })
     }
 
-    pub fn decode<T: DeserializeOwned>(&self, token: &str) -> jsonwebtoken::errors::Result<TokenData<T>> {
-        let validator = Validation {
-            ..Validation::new(ALGORITHM)
-        };
-    
-        decode::<T>(token, &self.public_key, &validator)
+    pub fn decode<T: DeserializeOwned + Serialize>(&self, token: &str) -> Result<JWTClaims<T>, Error> {
+        self.public_key.verify_token::<T>(&token, None)
     }
 
     pub fn validate(&self, token: &str) -> Result<SlimUser, Error> {
-        let result = self.decode::<Claims>(token)?;
-        Ok(result.claims.user)
+        let claims = self.decode::<CustomClaims>(token)?;
+        Ok(claims.custom.user)
     }
 }
 

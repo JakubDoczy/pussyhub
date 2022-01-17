@@ -9,8 +9,11 @@ pub enum RegistrationError {
     #[error("The email \"{0}\" is already registered.")]
     EmailAlreadyExists(String),
 
+    #[error("Invalid payload.")]
+    ValidationError,
+
     #[error("Unexpected error.")]
-    UnexpectedError,    
+    UnexpectedError,
 }
 
 #[derive(Error, Debug, Serialize, Deserialize, Clone)]

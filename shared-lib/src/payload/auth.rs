@@ -1,10 +1,19 @@
 use serde::{Serialize, Deserialize};
+use validator::{Validate, ValidationErrors};
 
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Validate, Debug, Serialize, Deserialize)]
 pub struct AuthPayload {
-    //#[validate(length(min = 3, max = 128))]
+    #[validate(email(message = "not a valid email"))]
     pub email: String,
-    //#[validate]//#[validate(length(min = 3, max = 20))]
+    // TODO spec characters, number included
+    #[validate(length(min = 4, max = 255, message = "must be at least 4 characters long"))]
     pub password: String, // just hash ofc
+}
+
+impl AuthPayload {
+
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+
 }

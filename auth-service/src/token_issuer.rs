@@ -1,47 +1,40 @@
 use anyhow::Error;
-use chrono::Utc;
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jwt_simple::prelude::{RS256KeyPair, Claims, Duration};
+use jwt_simple::algorithms::RSAKeyPairLike;
+
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
-use shared_lib::token_validation::{Claims, SlimUser, ALGORITHM};
+use shared_lib::token_validation::{CustomClaims, SlimUser};
 
-pub const DEFAULT_VALIDITY_DURATION_SEC: i64 = 24 * 60 * 60;
+pub const DEFAULT_VALIDITY_DURATION_SEC: u64 = 24 * 60 * 60;
 
 /// Structure that holds an encodeing key that
 /// may be used to sign data.
 #[derive(Clone)]
 pub struct TokenIssuer {
-    private_key: EncodingKey,
+    private_key: RS256KeyPair,
 }
 
 impl TokenIssuer {
     /// Creates a new token issuer from a PEM file that contains a private key.
-    pub async fn from_rsa_pem(rsa_pem_file: &str) -> Result<Self, Error> {
-        let data = tokio::fs::read(rsa_pem_file).await?;
-        let issuer = TokenIssuer {
-            private_key: EncodingKey::from_rsa_pem(&data)?,
-        };
-        Ok(issuer)
+    pub fn from_rsa_pem(rsa_pem_file: &'static str) -> Result<Self, Error> {
+        Ok(Self { private_key: RS256KeyPair::from_pem(rsa_pem_file)? })
     }
 
+
     /// Encodes any serializable data.
-    pub fn encode<T: Serialize>(
+    pub fn encode<T: DeserializeOwned + Serialize>(
         &self,
-        header: &Header,
-        claims: &T,
-    ) -> Result<String, jsonwebtoken::errors::Error> {
-        encode(header, &claims, &self.private_key)
+        claims: T
+    ) -> Result<String, Error> {
+        let claims = Claims::with_custom_claims(claims, Duration::from_secs(DEFAULT_VALIDITY_DURATION_SEC));
+        self.private_key.sign(claims)
     }
 
     /// Issues a new jwt token. This token contains information about a user.
     /// The user that holds the token is authenticated.
-    pub fn issue_token(&self, user: SlimUser) -> Result<String, jsonwebtoken::errors::Error> {
-        let body = Claims {
-            iat: Utc::now().timestamp() as usize,
-            exp: (Utc::now().timestamp() + DEFAULT_VALIDITY_DURATION_SEC) as usize,
-            user,
-        };
-
-        self.encode(&Header::new(ALGORITHM), &body)
+    pub fn issue_token(&self, user: SlimUser) -> Result<String, Error> {
+        self.encode(CustomClaims{ user })
     }
 }
