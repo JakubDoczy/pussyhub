@@ -19,7 +19,7 @@ impl Component for Video {
     fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
         Self {
             video_source_url: props.src,
-            element_id: Uuid::new_v4().to_string()
+            element_id: format!("video-{}", Uuid::new_v4())
         }
     }
 
@@ -33,18 +33,17 @@ impl Component for Video {
 
     fn view(&self) -> Html {
         html!(
-            <div id={self.element_id.clone()}></div>
+            <video-js id={self.element_id.clone()} class="video-js vjs-theme-ph" />
         )
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        println!("{}", self.element_id);
-        playVideo(self.element_id.as_str(), self.video_source_url.as_str());
+        playVideo(self.element_id.as_str(), self.video_source_url.as_str(), "/cat.svg");
     }
 }
 
 #[wasm_bindgen(module = "/src/static/videoPlayer.js")]
 extern "C" {
     #[wasm_bindgen]
-    fn playVideo(element_id: &str, video_source_url: &str);
+    fn playVideo(element_id: &str, source_url: &str, thumbnail_url: &str);
 }
