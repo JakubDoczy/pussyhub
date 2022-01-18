@@ -1,14 +1,19 @@
+use shared_lib::token_validation::Role;
 use yew::prelude::*;
 use yew_router::agent::{RouteAgentDispatcher, RouteRequest};
 use yew_router::prelude::{Route, RouteService};
 use yew_router::Switch;
+use yewdux::prelude::*;
+use yewtil::NeqAssign;
 use crate::routes::AppRoute;
+use crate::{State, user_info};
 
 pub enum Msg {
     GoToMenu(AppRoute),
 }
 
 pub struct Nav {
+    dispatch: DispatchProps<BasicStore<State>>,
     link: ComponentLink<Self>,
     route_dispatcher: RouteAgentDispatcher,
     route_service: RouteService,
@@ -17,10 +22,11 @@ pub struct Nav {
 
 impl Component for Nav {
     type Message = Msg;
-    type Properties = ();
+    type Properties = DispatchProps<BasicStore<State>>;
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(dispatch: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
+            dispatch,
             link,
             route_dispatcher: RouteAgentDispatcher::new(),
             route_service: RouteService::new(),
@@ -39,8 +45,8 @@ impl Component for Nav {
         true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
+    fn change(&mut self, dispatch: Self::Properties) -> ShouldRender {
+        self.dispatch.neq_assign(dispatch)
     }
 
     fn view(&self) -> Html {

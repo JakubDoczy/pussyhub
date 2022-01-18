@@ -1,18 +1,32 @@
 use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 use crate::components::navigation::Nav;
+use crate::State;
 
-#[derive(Properties, Clone)]
+#[derive(Properties, Clone, PartialEq)]
 pub struct Props {
+    #[prop_or_default]
+    pub dispatch: DispatchProps<BasicStore<State>>,
     #[prop_or_default]
     pub children: Children,
 }
 
-pub struct MainLayout {
+impl DispatchPropsMut for Props {
+    type Store = BasicStore<State>;
+
+    fn dispatch(&mut self) -> &mut DispatchProps<Self::Store> {
+        &mut self.dispatch
+    }
+}
+
+pub type MainLayout = WithDispatch<MainLayoutBase>;
+
+pub struct MainLayoutBase {
     props: Props
 }
 
-impl Component for MainLayout {
+impl Component for MainLayoutBase {
     type Message = ();
     type Properties = Props;
 
@@ -23,7 +37,7 @@ impl Component for MainLayout {
     fn update(&mut self, _msg: Self::Message) -> ShouldRender { false }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.children.neq_assign(props.children)
+        self.props.neq_assign(props)
     }
 
     fn view(&self) -> Html {
