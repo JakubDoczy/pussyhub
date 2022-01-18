@@ -6,6 +6,13 @@ use shared_lib::token_validation::{SlimUser, TokenValidator};
 const TOKEN_KEY: &str = "pussyhub.jwt.token";
 const PUBLIC_KEY_PEM: &str = include_str!("../../resources/public.pem");
 
+pub fn validate(token: &str) -> Result<SlimUser, anyhow::Error> {
+    let validator = TokenValidator::from_rsa_pem(PUBLIC_KEY_PEM).unwrap();
+    validator.validate(token)
+}
+
+// Copyright 2021 Jet Li | Apache licence | https://github.com/jetli/rust-yew-realworld-example-app
+
 lazy_static! {
     /// Jwt token read from local storage.
     pub static ref TOKEN: RwLock<Option<String>> = {
@@ -32,9 +39,4 @@ pub fn set_token(token: Option<String>) {
 pub fn get_token() -> Option<String> {
     let token_lock = TOKEN.read();
     token_lock.clone()
-}
-
-pub fn validate(token: &str) -> Result<SlimUser, anyhow::Error> {
-    let validator = TokenValidator::from_rsa_pem(PUBLIC_KEY_PEM).unwrap();
-    validator.validate(token)
 }
