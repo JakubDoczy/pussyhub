@@ -4,7 +4,6 @@ use crate::PostgresVideoRepository;
 use actix_web::{web, HttpResponse, Responder};
 use shared_lib::payload::rating::RatingResponse;
 use std::sync::Arc;
-use shared_lib::payload::rating::RatingResponse;
 
 #[actix_web::post("/videos/{id}/like")]
 pub async fn like_video(
