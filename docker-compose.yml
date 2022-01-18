@@ -40,7 +40,7 @@ services:
     restart: always
     ports:
       - "127.0.0.1:8069:80"
-      - "127.0.0.1:25:25"
+      - "127.0.0.1:2525:25"
   auth:
     container_name: auth
     build:
