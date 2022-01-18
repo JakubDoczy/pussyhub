@@ -52,6 +52,12 @@ impl Component for VideoBase {
             let response = request_get::<GetVideoResponse>(format!("/videos/{}", props.id.clone())).await;
             Msg::GetVideoResult(response)
         });
+        spawn_local(async move{
+            match request_get::<bool>(format!("/videos/{}/view", props.id.clone())).await {
+                Ok(_) => {}
+                Err(err) => debug!(err)
+            };
+        });
         Self {
             link,
             props,
