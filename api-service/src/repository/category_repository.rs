@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
+use crate::model::category::Category;
 use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
 use thiserror::Error;
-use crate::model::category::Category;
 
 #[async_trait]
 pub trait CategoryRepository {
@@ -14,10 +14,7 @@ pub trait CategoryRepository {
         id: i64,
         category: Category,
     ) -> Result<Category, DBCategoryError>;
-    async fn create_category(
-        &self,
-        category: Category,
-    ) -> Result<Category, DBCategoryError>;
+    async fn create_category(&self, category: Category) -> Result<Category, DBCategoryError>;
     async fn delete_category(&self, id: i64) -> Result<(), DBCategoryError>;
     async fn list_categories(&self) -> Result<Vec<Category>, DBCategoryError>;
 }
@@ -89,10 +86,7 @@ impl CategoryRepository for PostgresCategoryRepository {
         }
     }
 
-    async fn create_category(
-        &self,
-        category: Category,
-    ) -> Result<Category, DBCategoryError> {
+    async fn create_category(&self, category: Category) -> Result<Category, DBCategoryError> {
         let res = sqlx::query_as!(
             Category,
             r#"

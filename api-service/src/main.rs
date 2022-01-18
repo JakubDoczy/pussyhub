@@ -1,19 +1,17 @@
 use actix_cors::Cors;
+use actix_files::Files;
+use actix_web::middleware::Logger;
+use actix_web::{middleware, web, App, HttpServer};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::{env, sync::Arc};
-use actix_files::Files;
-use actix_web::{middleware, web, App, HttpServer};
-use actix_web::middleware::Logger;
 
 mod endpoint;
 mod model;
 mod repository;
 
-use crate::repository::video_repository::PostgresVideoRepository;
 use crate::repository::category_repository::PostgresCategoryRepository;
-
-
+use crate::repository::video_repository::PostgresVideoRepository;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,7 +33,6 @@ async fn main() -> std::io::Result<()> {
     let category_repository = Arc::new(PostgresCategoryRepository::new(pool.clone()));
 
     HttpServer::new(move || {
-
         let cors = Cors::default()
             .allow_any_header()
             .allow_any_origin()
@@ -53,15 +50,13 @@ async fn main() -> std::io::Result<()> {
                     .service(endpoint::video::delete_video)
                     .service(endpoint::video::list_videos)
                     .service(endpoint::video::list_videos_in_category)
-
                     .service(endpoint::category::get_category_by_id)
                     .service(endpoint::category::put_category)
                     .service(endpoint::category::post_category)
                     .service(endpoint::category::delete_category)
                     .service(endpoint::category::list_catgeories)
-
                     .service(endpoint::rating::like_video)
-                    .service(endpoint::rating::dislike_video)
+                    .service(endpoint::rating::dislike_video),
             )
     })
     .bind("127.0.0.1:8001")?

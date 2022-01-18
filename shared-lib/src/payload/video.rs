@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use validator::Validate;
 
 use super::{rating::Rating, category::CategoryResponse};
 
@@ -17,9 +18,10 @@ pub struct VideoResponse {
     pub category: CategoryResponse
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct VideoRequest {
     pub creator_id: i64,
+    #[validate(length(min = 1))]
     pub name: String,
     pub preview_url: String,
     pub video_url: String,

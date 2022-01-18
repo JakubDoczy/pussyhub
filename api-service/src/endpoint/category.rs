@@ -1,8 +1,11 @@
+use crate::model::category::{from_categories, Category};
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
-use crate::model::category::{Category, from_categories};
 use actix_web::{web, HttpResponse, Responder};
-use shared_lib::payload::category::{GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest, PutCategoryResponse};
+use shared_lib::payload::category::{
+    GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest,
+    PutCategoryResponse,
+};
 use std::sync::Arc;
 
 #[actix_web::get("/categories/{id}")]
@@ -28,7 +31,9 @@ pub async fn put_category(
 ) -> impl Responder {
     let id = params.into_inner();
 
-    let response = data.update_category(id, Category::from(category.into_inner())).await;
+    let response = data
+        .update_category(id, Category::from(category.into_inner()))
+        .await;
 
     match response {
         Ok(category) => HttpResponse::Ok().json(PutCategoryResponse::from(category)),
@@ -41,7 +46,9 @@ pub async fn post_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
     category: web::Json<PostCategoryRequest>,
 ) -> impl Responder {
-    let response = data.create_category(Category::from(category.into_inner())).await;
+    let response = data
+        .create_category(Category::from(category.into_inner()))
+        .await;
 
     match response {
         Ok(category) => HttpResponse::Ok().json(PostCategoryResponse::from(category)),

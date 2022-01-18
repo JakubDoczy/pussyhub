@@ -1,8 +1,11 @@
 use std::sync::Arc;
 
-use actix_web::{web, HttpResponse, Responder};
-use shared_lib::payload::video::{GetVideoResponse, GetVideos, PostVideoRequest, PostVideoResponse, PutVideoRequest, PutVideoResponse, VideoRequest};
 use crate::model::video::{from_videos, Video};
+use actix_web::{web, HttpResponse, Responder};
+use shared_lib::payload::video::{
+    GetVideoResponse, PostVideoRequest, PostVideoResponse, PutVideoRequest,
+    PutVideoResponse,
+};
 
 use crate::repository::video_repository::{PostgresVideoRepository, VideoRepository};
 
@@ -60,7 +63,7 @@ pub async fn delete_video(
     let response = data.delete_video(id).await;
 
     match response {
-        Ok(video) => HttpResponse::Ok().json(""),
+        Ok(_) => HttpResponse::Ok().json(""),
         Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
@@ -71,8 +74,7 @@ pub async fn list_videos(data: web::Data<Arc<PostgresVideoRepository>>) -> impl 
 
     match response {
         Ok(video) => HttpResponse::Ok().json(video),
-        Err(e) =>
-            HttpResponse::InternalServerError().json(e),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
