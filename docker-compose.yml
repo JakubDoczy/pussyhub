@@ -30,7 +30,8 @@ services:
       timeout: 5s
       retries: 5
   adminer:
-    image: pussyhub_adminer
+    container_name: pussyhub_adminer
+    image: adminer
     restart: always
     ports:
       - "127.0.0.1:8079:8080"
