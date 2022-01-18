@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::env;
-use gloo::console::debug;
 use lazy_static::lazy_static;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use wasm_bindgen::JsValue;
@@ -8,6 +7,7 @@ use wasm_bindgen::JsValue;
 use crate::services::jwt::get_token;
 
 lazy_static!{
+    // TODO does not work for now, goes to unwrap_or
     static ref API_ROOT: String = env::var("API_SERVICE_URL").unwrap_or("http://127.0.0.1:8001/api".to_string());
 }
 
