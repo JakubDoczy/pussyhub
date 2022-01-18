@@ -5,7 +5,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
 use thiserror::Error;
-use serde::{Serialize, Deserialize};
+use crate::error::category::DBCategoryError;
 
 #[async_trait]
 pub trait CategoryRepository {
@@ -153,13 +153,4 @@ impl CategoryRepository for PostgresCategoryRepository {
             },
         }
     }
-}
-
-#[derive(Error, Debug, Serialize, Deserialize)]
-pub enum DBCategoryError {
-    #[error("The database does not contain category \"{0}\".")]
-    CategoryDoesNotExists(i64),
-
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),
 }

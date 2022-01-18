@@ -9,6 +9,7 @@ use std::{env, sync::Arc};
 mod endpoint;
 mod model;
 mod repository;
+mod error;
 
 use crate::repository::category_repository::PostgresCategoryRepository;
 use crate::repository::video_repository::PostgresVideoRepository;

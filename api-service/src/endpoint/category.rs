@@ -7,6 +7,7 @@ use shared_lib::payload::category::{
     PutCategoryResponse,
 };
 use std::sync::Arc;
+use crate::error::category::resolve;
 
 #[actix_web::get("/categories/{id}")]
 pub async fn get_category_by_id(
@@ -19,7 +20,7 @@ pub async fn get_category_by_id(
 
     match response {
         Ok(category) => HttpResponse::Ok().json(GetCategoryResponse::from(category)),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
 
@@ -37,7 +38,7 @@ pub async fn put_category(
 
     match response {
         Ok(category) => HttpResponse::Ok().json(PutCategoryResponse::from(category)),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
 
@@ -52,7 +53,7 @@ pub async fn post_category(
 
     match response {
         Ok(category) => HttpResponse::Ok().json(PostCategoryResponse::from(category)),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
 
@@ -67,7 +68,7 @@ pub async fn delete_category(
 
     match response {
         Ok(_) => HttpResponse::Ok().json(""),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
 
@@ -78,6 +79,6 @@ pub async fn list_catgeories(data: web::Data<Arc<PostgresCategoryRepository>>) -
     match response {
         // TODO: implement for vect
         Ok(categories) => HttpResponse::Ok().json(from_categories(categories)),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
