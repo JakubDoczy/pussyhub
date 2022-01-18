@@ -3,6 +3,7 @@ use crate::repository::video_repository::VideoRepository;
 use crate::PostgresVideoRepository;
 use actix_web::{web, HttpResponse, Responder};
 use std::sync::Arc;
+use shared_lib::payload::rating::RatingResponse;
 
 #[actix_web::post("/videos/{id}/like")]
 pub async fn like_video(
@@ -11,7 +12,7 @@ pub async fn like_video(
 ) -> impl Responder {
     let id = params.into_inner();
     let response = data
-        .like(
+        .toggle_like(
             id,
             User {
                 id: 1,
@@ -25,7 +26,7 @@ pub async fn like_video(
         .await;
 
     match response {
-        Ok(_) => HttpResponse::Ok().json(()),
+        Ok(toggled) => HttpResponse::Ok().json(RatingResponse { toggled }),
         Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
@@ -37,7 +38,7 @@ pub async fn dislike_video(
 ) -> impl Responder {
     let id = params.into_inner();
     let response = data
-        .dislike(
+        .toggle_dislike(
             id,
             User {
                 id: 1,
@@ -51,7 +52,7 @@ pub async fn dislike_video(
         .await;
 
     match response {
-        Ok(_) => HttpResponse::Ok().json(()),
+        Ok(toggled) => HttpResponse::Ok().json(RatingResponse { toggled }),
         Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }

@@ -4,7 +4,6 @@ use chrono::{DateTime, Utc};
 use shared_lib::payload::category::CategoryResponse;
 use shared_lib::payload::rating::Rating;
 use shared_lib::payload::video::{GetVideos, VideoRequest, VideoResponse};
-use crate::model::category::Category;
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Video {
@@ -19,7 +18,7 @@ pub struct Video {
     #[serde(with = "ts_milliseconds")]
     pub created_at: DateTime<Utc>,
     pub category_id: i64,
-    pub category_name: Option<String>
+    pub category_name: Option<String>,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
@@ -42,7 +41,7 @@ impl From<VideoRequest> for Video {
             dislikes: 0,
             created_at: chrono::offset::Utc::now(),
             category_id: video.category,
-            category_name: None
+            category_name: None,
         }
     }
 }
@@ -62,8 +61,8 @@ impl From<Video> for VideoResponse {
             rating: Rating { id: 0, rating: 0 },
             category: CategoryResponse {
                 id: video.category_id,
-                name: video.category_name.unwrap_or_default()
-            }
+                name: video.category_name.unwrap_or_default(),
+            },
         }
     }
 }
