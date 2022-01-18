@@ -33,7 +33,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8079:8079
+      - 8079:8080
   smtp:
     container_name: smtp
     image: rnwood/smtp4dev:v3
