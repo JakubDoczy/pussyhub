@@ -6,7 +6,7 @@ use yew_router::Switch;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
 use crate::routes::AppRoute;
-use crate::{State, user_info};
+use crate::{is_auth, State, user_info};
 
 pub enum Msg {
     GoToMenu(AppRoute),
@@ -81,6 +81,20 @@ impl Component for Nav {
                 html!()
             };
 
+        let creator_menu = if is_auth() {
+            html!(
+                <>
+                    <p class="menu-label">
+                      {"Creator"}
+                    </p>
+                    <ul class="menu-list">
+                      <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::CreatorVideos))} class={ is_active(AppRoute::CreatorVideos) }><i class="fas fa-cut"></i> {" My videos"}</a></li>
+                    </ul>
+                </>
+            )} else {
+            html!()
+        };
+
         return html! {
             <div class="menu">
                 <p class="menu-label">
@@ -92,6 +106,7 @@ impl Component for Nav {
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Livestreams))} class={ is_active(AppRoute::Livestreams) }><i class="fas fa-satellite-dish"></i> {" Livestreams"}</a></li>
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Creators))} class={ is_active(AppRoute::Creators) }><i class="fas fa-user"></i> {" Creators"}</a></li>
                 </ul>
+                { creator_menu }
                 { admin_menu }
                 <p class="menu-label">
                   {"Categories"}

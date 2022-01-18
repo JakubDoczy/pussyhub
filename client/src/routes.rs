@@ -50,6 +50,7 @@ impl Component for AppRouter {
                         AppRoute::Creators => html! { <MainLayout> {"tbd"} </MainLayout> },
                         AppRoute::EditCategories => html! { <MainLayout> <EditCategories /> </MainLayout> },
                         AppRoute::WatchVideo(id) => html! { <MainLayout> <Video id={id} /> </MainLayout> },
+                        AppRoute::CreatorVideos => html! { <MainLayout> </MainLayout> },
                     }
                 })
             />
@@ -71,6 +72,8 @@ pub enum AppRoute {
     Videos,
     #[to = "/creators"]
     Creators,
+    #[to = "/creator/videos"]
+    CreatorVideos,
     #[to = "/adm/categories"]
     EditCategories,
     #[to = "/watch/video/{id}"]
