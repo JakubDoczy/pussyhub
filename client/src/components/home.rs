@@ -1,4 +1,3 @@
-use crate::components::video_player::Video;
 use yew::prelude::*;
 
 pub struct Home {}
