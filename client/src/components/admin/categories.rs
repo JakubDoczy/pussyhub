@@ -1,11 +1,9 @@
 use gloo::console::debug;
 use shared_lib::payload::category::GetCategoriesResponse;
-use shared_lib::payload::video::GetVideos;
 use yew::prelude::*;
 use yewtil::future::LinkFuture;
 use crate::services::requests;
 use crate::services::requests::request_get;
-use crate::routes::{AppAnchor, AppRoute};
 
 pub enum Msg {
     GetCategoriesResult(Result<GetCategoriesResponse, requests::Error>),
