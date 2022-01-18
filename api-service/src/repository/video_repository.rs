@@ -47,8 +47,11 @@ impl VideoRepository for PostgresVideoRepository {
                 dislikes, 
                 created_at,
                 category.id as category_id,
-                category.name as "category_name?"
-            FROM video INNER JOIN category ON (category.id = video.category_id)
+                category.name as "category_name?",
+                rating.rating as "rating?"
+            FROM video
+                INNER JOIN category ON (category.id = video.category_id)
+                LEFT JOIN rating ON (video.id = rating.video_id)
             WHERE video.id = $1
             "#,
             id: i64
@@ -168,8 +171,11 @@ impl VideoRepository for PostgresVideoRepository {
                 dislikes,
                 created_at,
                 category.id as category_id,
-                category.name as "category_name?"
-            FROM video INNER JOIN category ON (category.id = video.category_id)
+                category.name as "category_name?",
+                rating.rating as "rating?"
+            FROM video
+                INNER JOIN category ON (category.id = video.category_id)
+                LEFT JOIN rating ON (video.id = rating.video_id)
             WHERE category_id = $1
             "#,
             category
@@ -200,8 +206,11 @@ impl VideoRepository for PostgresVideoRepository {
                 dislikes,
                 created_at,
                 category.id as category_id,
-                category.name as "category_name?"
-            FROM video INNER JOIN category ON (category.id = video.category_id)
+                category.name as "category_name?",
+                rating.rating as "rating?"
+            FROM video
+                INNER JOIN category ON (category.id = video.category_id)
+                LEFT JOIN rating ON (video.id = rating.video_id)
             WHERE category_id != $1
             "#,
             -1 // WTF try remove where clause
