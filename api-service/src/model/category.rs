@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use shared_lib::payload::category::{
-    CategoryRequest, CategoryResponse, GetCategoriesResponse,
-    PostCategoryRequest, PostCategoryResponse,
+    CategoryRequest, CategoryResponse, GetCategoriesResponse, PostCategoryRequest,
+    PostCategoryResponse,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

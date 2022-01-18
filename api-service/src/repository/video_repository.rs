@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::model::user::User;
-use crate::model::video::{Video};
+use crate::model::video::Video;
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::Serialize;
@@ -14,10 +14,15 @@ pub trait VideoRepository {
     async fn update_video(&self, id: i64, video: Video) -> Result<Video, DBVideoError>;
     async fn create_video(&self, video: Video) -> Result<Video, DBVideoError>;
     async fn delete_video(&self, id: i64) -> Result<(), DBVideoError>;
+
     async fn list_in_category(&self, category: i64) -> Result<Vec<Video>, DBVideoError>;
+    async fn list_by_user(&self, user: i64) -> Result<Vec<Video>, DBVideoError>;
     async fn get_videos(&self) -> Result<Vec<Video>, DBVideoError>;
+
     async fn toggle_like(&self, id: i64, user: User) -> Result<bool, DBVideoError>;
     async fn toggle_dislike(&self, id: i64, user: User) -> Result<bool, DBVideoError>;
+
+    async fn view(&self, id: i64) -> Result<bool, DBVideoError>;
 }
 
 pub struct PostgresVideoRepository {
@@ -184,7 +189,42 @@ impl VideoRepository for PostgresVideoRepository {
         .await;
 
         match res {
-            Ok(video) => Ok(video),
+            Ok(videos) => Ok(videos),
+            Err(e) => match e {
+                _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
+            },
+        }
+    }
+
+    async fn list_by_user(&self, user: i64) -> Result<Vec<Video>, DBVideoError> {
+        let res = sqlx::query_as!(
+            Video,
+            r#"
+            SELECT
+                video.id as "id?",
+                creator_id,
+                video.name as name,
+                preview_url,
+                video_url,
+                views,
+                likes,
+                dislikes,
+                created_at,
+                category.id as category_id,
+                category.name as "category_name?",
+                rating.rating as "rating?"
+            FROM video
+                INNER JOIN category ON (category.id = video.category_id)
+                LEFT JOIN rating ON (video.id = rating.video_id)
+            WHERE creator_id = $1
+            "#,
+            user
+        )
+        .fetch_all(&*self.pg_pool)
+        .await;
+
+        match res {
+            Ok(videos) => Ok(videos),
             Err(e) => match e {
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
@@ -219,7 +259,7 @@ impl VideoRepository for PostgresVideoRepository {
         .await;
 
         match res {
-            Ok(video) => Ok(video),
+            Ok(videos) => Ok(videos),
             Err(e) => match e {
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
@@ -241,8 +281,8 @@ impl VideoRepository for PostgresVideoRepository {
             id,
             user.id
         )
-            .fetch_one(&*self.pg_pool)
-            .await;
+        .fetch_one(&*self.pg_pool)
+        .await;
 
         if let Ok(rating) = res {
             if rating.rating == 1 {
@@ -251,7 +291,6 @@ impl VideoRepository for PostgresVideoRepository {
                 return Err(DBVideoError::VideoAlreadyHasDislike(id));
             }
         }
-
 
         let res = sqlx::query!(
             r#"
@@ -275,7 +314,7 @@ impl VideoRepository for PostgresVideoRepository {
 
         if add_to_likes == 1 {
             let res = sqlx::query!(
-            r#"
+                r#"
             INSERT INTO rating (
                 user_id,
                 video_id,
@@ -283,21 +322,21 @@ impl VideoRepository for PostgresVideoRepository {
             )
             VALUES ($1, $2, $3)
             "#,
-            user.id,
-            id,
-            1
-        )
-                .execute(&*self.pg_pool)
-                .await;
+                user.id,
+                id,
+                1
+            )
+            .execute(&*self.pg_pool)
+            .await;
 
             return match res {
                 Ok(_) => Ok(add_to_likes != 1),
                 Err(e) => match e {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 },
-            }
+            };
         }
-            let res = sqlx::query!(
+        let res = sqlx::query!(
             r#"
             DELETE FROM rating
             WHERE
@@ -307,15 +346,15 @@ impl VideoRepository for PostgresVideoRepository {
             user.id,
             id,
         )
-                .execute(&*self.pg_pool)
-                .await;
+        .execute(&*self.pg_pool)
+        .await;
 
-            return match res {
-                Ok(_) => Ok(add_to_likes != 1),
-                Err(e) => match e {
-                    _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
-                },
-            }
+        return match res {
+            Ok(_) => Ok(add_to_likes != 1),
+            Err(e) => match e {
+                _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
+            },
+        };
     }
 
     async fn toggle_dislike(&self, id: i64, user: User) -> Result<bool, DBVideoError> {
@@ -333,8 +372,8 @@ impl VideoRepository for PostgresVideoRepository {
             id,
             user.id
         )
-            .fetch_one(&*self.pg_pool)
-            .await;
+        .fetch_one(&*self.pg_pool)
+        .await;
 
         if let Ok(rating) = res {
             if rating.rating == -1 {
@@ -354,8 +393,8 @@ impl VideoRepository for PostgresVideoRepository {
             add_to_dislikes,
             id
         )
-            .execute(&*self.pg_pool)
-            .await;
+        .execute(&*self.pg_pool)
+        .await;
 
         if let Err(e) = res {
             return match e {
@@ -366,7 +405,7 @@ impl VideoRepository for PostgresVideoRepository {
 
         if add_to_dislikes == 1 {
             let res = sqlx::query!(
-            r#"
+                r#"
             INSERT INTO rating (
                 user_id,
                 video_id,
@@ -374,19 +413,19 @@ impl VideoRepository for PostgresVideoRepository {
             )
             VALUES ($1, $2, $3)
             "#,
-            user.id,
-            id,
-            -1
-        )
-                .execute(&*self.pg_pool)
-                .await;
+                user.id,
+                id,
+                -1
+            )
+            .execute(&*self.pg_pool)
+            .await;
 
             return match res {
                 Ok(_) => Ok(add_to_dislikes != 1),
                 Err(e) => match e {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 },
-            }
+            };
         }
         let res = sqlx::query!(
             r#"
@@ -398,12 +437,34 @@ impl VideoRepository for PostgresVideoRepository {
             user.id,
             id,
         )
-            .execute(&*self.pg_pool)
-            .await;
+        .execute(&*self.pg_pool)
+        .await;
 
         return match res {
             Ok(_) => Ok(add_to_dislikes != 1),
             Err(e) => match e {
+                _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
+            },
+        };
+    }
+
+    async fn view(&self, id: i64) -> Result<bool, DBVideoError> {
+        let res = sqlx::query!(
+            r#"
+            UPDATE video
+            SET
+                views = views + 1
+            WHERE id = $1
+            "#,
+            id
+        )
+        .execute(&*self.pg_pool)
+        .await;
+
+        match res {
+            Ok(_) => Ok(true),
+            Err(e) => match e {
+                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
         }

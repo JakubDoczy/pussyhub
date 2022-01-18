@@ -2,6 +2,7 @@ use crate::model::user::{Role, User};
 use crate::repository::video_repository::VideoRepository;
 use crate::PostgresVideoRepository;
 use actix_web::{web, HttpResponse, Responder};
+use shared_lib::payload::rating::RatingResponse;
 use std::sync::Arc;
 use shared_lib::payload::rating::RatingResponse;
 
@@ -17,10 +18,12 @@ pub async fn like_video(
             User {
                 id: 1,
                 email: "".to_string(),
+                verified: true,
                 user_role: Role::Admin,
                 username: "".to_string(),
                 description: None,
                 picture_url: None,
+                created_at: chrono::offset::Utc::now(),
             },
         )
         .await;
@@ -43,10 +46,12 @@ pub async fn dislike_video(
             User {
                 id: 1,
                 email: "".to_string(),
+                verified: true,
                 user_role: Role::Admin,
                 username: "".to_string(),
                 description: None,
                 picture_url: None,
+                created_at: chrono::offset::Utc::now(),
             },
         )
         .await;

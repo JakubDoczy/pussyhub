@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
+use crate::error::category::DBCategoryError;
 use crate::model::category::Category;
 use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
-use thiserror::Error;
 
 #[async_trait]
 pub trait CategoryRepository {
@@ -152,13 +152,4 @@ impl CategoryRepository for PostgresCategoryRepository {
             },
         }
     }
-}
-
-#[derive(Error, Debug)]
-pub enum DBCategoryError {
-    #[error("The database does not contain category \"{0}\".")]
-    CategoryDoesNotExists(i64),
-
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),
 }
