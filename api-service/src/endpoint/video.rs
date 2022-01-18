@@ -3,8 +3,7 @@ use std::sync::Arc;
 use crate::model::video::{from_videos, Video};
 use actix_web::{web, HttpResponse, Responder};
 use shared_lib::payload::video::{
-    GetVideoResponse, PostVideoRequest, PostVideoResponse, PutVideoRequest,
-    PutVideoResponse,
+    GetVideoResponse, PostVideoRequest, PostVideoResponse, PutVideoRequest, PutVideoResponse,
 };
 
 use crate::repository::video_repository::{PostgresVideoRepository, VideoRepository};
@@ -73,7 +72,7 @@ pub async fn list_videos(data: web::Data<Arc<PostgresVideoRepository>>) -> impl 
     let response = data.get_videos().await;
 
     match response {
-        Ok(video) => HttpResponse::Ok().json(video),
+        Ok(video) => HttpResponse::Ok().json(from_videos(video)),
         Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
@@ -88,6 +87,34 @@ pub async fn list_videos_in_category(
 
     match response {
         Ok(videos) => HttpResponse::Ok().json(from_videos(videos)),
+        Err(e) => HttpResponse::InternalServerError().json(e),
+    }
+}
+
+#[actix_web::get("/users/{id}/videos")]
+pub async fn list_videos_by_user(
+    data: web::Data<Arc<PostgresVideoRepository>>,
+    params: web::Path<i64>,
+) -> impl Responder {
+    let id = params.into_inner();
+    let response = data.list_by_user(id).await;
+
+    match response {
+        Ok(videos) => HttpResponse::Ok().json(from_videos(videos)),
+        Err(e) => HttpResponse::InternalServerError().json(e),
+    }
+}
+
+#[actix_web::get("/videos/{id}/view")]
+pub async fn view_video(
+    data: web::Data<Arc<PostgresVideoRepository>>,
+    params: web::Path<i64>,
+) -> impl Responder {
+    let id = params.into_inner();
+    let response = data.view(id).await;
+
+    match response {
+        Ok(viewed) => HttpResponse::Ok().json(viewed),
         Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }

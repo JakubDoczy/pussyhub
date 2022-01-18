@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
+use crate::error::category::DBCategoryError;
 use crate::model::category::Category;
 use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
-use thiserror::Error;
-use crate::error::category::DBCategoryError;
 
 #[async_trait]
 pub trait CategoryRepository {
