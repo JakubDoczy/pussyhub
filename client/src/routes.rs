@@ -47,6 +47,7 @@ impl Component for AppRouter {
                         AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> },
                         AppRoute::Livestreams => html! { <MainLayout> <Livestreams /> </MainLayout> },
                         AppRoute::Videos => html! { <MainLayout> <Videos /> </MainLayout> },
+                        AppRoute::Creators => html! { <MainLayout> {"tbd"} </MainLayout> },
                         AppRoute::EditCategories => html! { <MainLayout> <EditCategories /> </MainLayout> },
                         AppRoute::WatchVideo(id) => html! { <MainLayout> <Video id={id} /> </MainLayout> },
                     }
@@ -68,6 +69,8 @@ pub enum AppRoute {
     Livestreams,
     #[to = "/videos"]
     Videos,
+    #[to = "/creators"]
+    Creators,
     #[to = "/adm/categories"]
     EditCategories,
     #[to = "/watch/video/{id}"]

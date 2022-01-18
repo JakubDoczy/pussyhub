@@ -88,8 +88,9 @@ impl Component for Nav {
                 </p>
                 <ul class="menu-list">
                   <li class="is-right"><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Home))} class={ is_active(AppRoute::Home) }><i class="fas fa-cat"></i> {" Home"}</a></li>
-                  <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Livestreams))} class={ is_active(AppRoute::Livestreams) }><i class="fas fa-satellite-dish"></i> {" Livestreams"}</a></li>
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Videos))} class={ is_active(AppRoute::Videos) }><i class="fas fa-video"></i> {" Videos"}</a></li>
+                  <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Livestreams))} class={ is_active(AppRoute::Livestreams) }><i class="fas fa-satellite-dish"></i> {" Livestreams"}</a></li>
+                  <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Creators))} class={ is_active(AppRoute::Creators) }><i class="fas fa-user"></i> {" Creators"}</a></li>
                 </ul>
                 { admin_menu }
                 <p class="menu-label">
