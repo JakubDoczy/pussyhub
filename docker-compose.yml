@@ -21,7 +21,7 @@ services:
 #    expose:
 #      - 5432
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
     healthcheck:
@@ -33,21 +33,21 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8079:8080
+      - "127.0.0.1:8079:8080"
   smtp:
     container_name: smtp
     image: rnwood/smtp4dev:v3
     restart: always
     ports:
-      - 3000:80
-      - 2525:25
+      - "127.0.0.1:8069:80"
+      - "127.0.0.1:25:25"
   auth:
     container_name: auth
     build:
       context: ./
       dockerfile: auth-service/Dockerfile
     ports:
-      - 8089:8089
+      - "127.0.0.1:8089:8089"
     depends_on:
       smtp:
         condition: service_started
@@ -59,7 +59,7 @@ services:
       context: ./
       dockerfile: client/Dockerfile
     ports:
-      - 5100:5000
+      - "127.0.0.1:5100:5000"
     depends_on:
       db:
         condition: service_healthy
