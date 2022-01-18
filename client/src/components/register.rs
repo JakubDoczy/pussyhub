@@ -8,7 +8,7 @@ use ybc::InputType;
 
 use yewtil::future::LinkFuture;
 use yewtil::NeqAssign;
-use crate::State;
+use crate::{State, user_info};
 
 pub enum Msg {
     UpdateEmail(String),
@@ -190,14 +190,19 @@ impl Component for Register {
             </ybc::Box>
         );
 
+        let user_info = user_info();
+
         html!(
             <div style="max-width: 400px; margin: auto;">
             {
-                if is_auth() {
-                    html!( <p> { "TODO" } </p> )
+                if !is_auth() {
+                    { register_form }
+                }
+                else if !user_info.verified {
+                    html!( <ybc::Notification> { "Registration in progress. Check your email (spam folder) for confirmation link." } </ybc::Notification> )
                 }
                 else {
-                    { register_form }
+                    html!( <ybc::Notification> { "Email verified. Registration complete." } </ybc::Notification> )
                 }
             }
             </div>

@@ -89,8 +89,8 @@ fn create_email_validation_token(
 }
 
 fn create_message(domain: &str, user_email: &str, token: &str) -> Message {
-    let link = format!(r"{}/email_confirmation/{}", domain, token);
-    let from = format!("OurApp <noreply@{}>", domain);
+    let link = format!(r"https://{}/email_confirmation/{}", domain, token);
+    let from = format!("PussyHub <noreply@{}>", domain);
 
     Message::builder()
         .to(user_email.parse().unwrap())
