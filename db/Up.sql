@@ -51,6 +51,8 @@ BEGIN TRANSACTION;
 INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
 INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
 INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.', '2016-06-22 19:10:25-07');
+INSERT INTO category (name) VALUES ('Testing stuff');
+INSERT INTO video (creator_id, category_id, name, preview_url, video_url, views, likes, dislikes, created_at, state) VALUES (1, 1, 'My first video', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Big.Buck.Bunny.-.Opening.Screen.png/1200px-Big.Buck.Bunny.-.Opening.Screen.png', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', 0, 0, 0, '2021-06-22 19:10:25-07', 'published');
 
 
 COMMIT;
