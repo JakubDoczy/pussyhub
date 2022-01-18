@@ -67,6 +67,20 @@ impl Component for Nav {
             ""
         };
 
+        let admin_menu = if user_info().role == Role::Admin {
+            html!(
+                <>
+                    <p class="menu-label">
+                      {"Admin"}
+                    </p>
+                    <ul class="menu-list">
+                      <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::EditCategories))} class={ is_active(AppRoute::EditCategories) }><i class="fas fa-edit"></i> {" Categories"}</a></li>
+                    </ul>
+                </>
+            )} else {
+                html!()
+            };
+
         return html! {
             <div class="menu">
                 <p class="menu-label">
@@ -77,6 +91,7 @@ impl Component for Nav {
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Livestreams))} class={ is_active(AppRoute::Livestreams) }><i class="fas fa-satellite-dish"></i> {" Livestreams"}</a></li>
                   <li><a onclick={self.link.callback(|_| Msg::GoToMenu(AppRoute::Videos))} class={ is_active(AppRoute::Videos) }><i class="fas fa-video"></i> {" Videos"}</a></li>
                 </ul>
+                { admin_menu }
                 <p class="menu-label">
                   {"Categories"}
                 </p>

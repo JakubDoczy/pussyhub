@@ -11,6 +11,7 @@ use crate::components::email_confirmation::EmailConfirmation;
 use crate::components::main_layout::MainLayout;
 use crate::components::livestreams::Livestreams;
 use crate::components::videos::Videos;
+use crate::components::admin::categories::EditCategories;
 use crate::State;
 
 pub struct AppRouter {
@@ -45,6 +46,7 @@ impl Component for AppRouter {
                         AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> },
                         AppRoute::Livestreams => html! { <MainLayout> <Livestreams /> </MainLayout> },
                         AppRoute::Videos => html! { <MainLayout> <Videos /> </MainLayout> },
+                        AppRoute::EditCategories => html! { <MainLayout> <EditCategories /> </MainLayout> },
                     }
                 })
             />
@@ -60,12 +62,14 @@ pub enum AppRoute {
     Register,
     #[to = "/email_confirmation/{confirmation_token}"]
     EmailConfirmation(String),
-    #[to = "/page-not-found"]
-    PageNotFound,
     #[to = "/livestreams"]
     Livestreams,
     #[to = "/videos"]
     Videos,
+    #[to = "/adm/categories"]
+    EditCategories,
+    #[to = "/page-not-found"]
+    PageNotFound,
     #[to = "/!"]
     Home,
 }
