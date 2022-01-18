@@ -8,7 +8,7 @@ use shared_lib::token_validation::{Role, SlimUser};
 use crate::services::jwt::{set_token, get_token, validate};
 
 lazy_static!{
-    static ref HOST: String = env::var("AUTH_SERVICE_URL").unwrap_or("http://127.0.0.1:8089".to_string());
+    static ref HOST: String = env::var("AUTH_SERVICE_URL").unwrap_or("http://127.0.0.1:8089/auth".to_string());
 }
 
 /// Get current user info
@@ -29,7 +29,7 @@ pub fn is_auth() -> bool {
 /// Login a user
 pub async fn login(login_info: AuthPayload) -> Result<SlimUser, AuthError> {
     let response = reqwest::Client::new()
-        .request(reqwest::Method::POST, format!{"{}/auth", *HOST})
+        .request(reqwest::Method::POST, format!{"{}/login", *HOST})
         .header("Content-Type", "application/json")
         .json(&login_info)
         .send().await;

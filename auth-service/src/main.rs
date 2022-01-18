@@ -73,9 +73,13 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .wrap(middleware::Logger::default())
             .app_data(app_data.clone())
-            .route("/auth", web::post().to(auth_handler))
-            .route("/registration", web::post().to(registration_handler))
-            .route("/confirmation/{token}", web::get().to(confirmation_handler))
+            .service(
+                web::scope("/auth")
+                    .route("/login", web::post().to(auth_handler))
+                    .route("/registration", web::post().to(registration_handler))
+                    .route("/confirmation/{token}", web::get().to(confirmation_handler))
+            )
+
         //.route("/registration", web::post().to(registration_handler))
     })
     .bind(address)?
