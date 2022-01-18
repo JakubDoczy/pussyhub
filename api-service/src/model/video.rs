@@ -19,6 +19,7 @@ pub struct Video {
     pub created_at: DateTime<Utc>,
     pub category_id: i64,
     pub category_name: Option<String>,
+    pub rating: Option<i16>,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
@@ -42,6 +43,7 @@ impl From<VideoRequest> for Video {
             created_at: chrono::offset::Utc::now(),
             category_id: video.category,
             category_name: None,
+            rating: None
         }
     }
 }
@@ -58,7 +60,7 @@ impl From<Video> for VideoResponse {
             likes: video.likes,
             dislikes: video.dislikes,
             created_at: video.created_at.to_string(),
-            rating: Rating { id: 0, rating: 0 },
+            rating:  video.rating,
             category: CategoryResponse {
                 id: video.category_id,
                 name: video.category_name.unwrap_or_default(),

@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use validator::Validate;
 
-use super::{rating::Rating, category::CategoryResponse};
+use super::{category::CategoryResponse};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VideoResponse {
@@ -14,7 +14,7 @@ pub struct VideoResponse {
     pub likes: i32,
     pub dislikes: i32,
     pub created_at: String,
-    pub rating: Rating,
+    pub rating: Option<i16>,
     pub category: CategoryResponse
 }
 
