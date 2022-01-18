@@ -2,7 +2,6 @@ use ::serde::{Deserialize, Serialize};
 use chrono::serde::ts_milliseconds;
 use chrono::{DateTime, Utc};
 use shared_lib::payload::category::CategoryResponse;
-use shared_lib::payload::rating::Rating;
 use shared_lib::payload::video::{GetVideos, VideoRequest, VideoResponse};
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
