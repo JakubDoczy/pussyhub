@@ -1,3 +1,4 @@
+use std::env;
 use shared_lib::error::auth::AuthError;
 use shared_lib::error::registration::{EmailVerificationError, RegistrationError};
 use shared_lib::payload::auth::AuthPayload;
@@ -5,9 +6,7 @@ use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::{Role, SlimUser};
 use crate::services::jwt::{set_token, get_token, validate};
 
-// TODO set from env
-const HOST: &str = "http://127.0.0.1:8089";
-
+const HOST: &str = env::var("AUTH_SERVICE_URL").unwrap_or_else("http://127.0.0.1:8089").as_str();
 
 /// Get current user info
 pub fn user_info() -> SlimUser {

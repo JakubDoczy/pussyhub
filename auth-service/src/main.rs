@@ -52,7 +52,7 @@ async fn main() -> std::io::Result<()> {
 
     let user_repo = initialize_user_repo().await;
     let smtp_transport = SmtpTransport::builder_dangerous("smtp")
-        .port(2525)
+        .port(25)
         .build();
 
     let app_data = web::Data::new(ApplicationData::new(

@@ -36,16 +36,15 @@ services:
       - "127.0.0.1:8079:8080"
   smtp:
     container_name: smtp
-    image: rnwood/smtp4dev:v3
+    image: bytemark/smtp
     restart: always
-    ports:
-      - "127.0.0.1:8069:80"
-      - "127.0.0.1:2525:25"
   auth:
     container_name: auth
     build:
       context: ./
       dockerfile: auth-service/Dockerfile
+    env_file:
+      - ./.env
     ports:
       - "127.0.0.1:8089:8089"
     depends_on:
@@ -53,11 +52,25 @@ services:
         condition: service_started
       db:
         condition: service_healthy
+  api:
+    container_name: api
+    build:
+      context: ./
+      dockerfile: api-service/Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
   client:
     container_name: client
     build:
       context: ./
       dockerfile: client/Dockerfile
+    env_file:
+      - ./.env
     ports:
       - "127.0.0.1:5100:5000"
     depends_on:

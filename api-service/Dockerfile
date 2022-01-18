@@ -3,11 +3,11 @@ FROM rust:latest as builder
 # local dependency files, everything will be rebuild if changed
 WORKDIR /pussyhub/
 COPY shared-lib/ shared-lib
-WORKDIR /pussyhub/auth-service
+WORKDIR /pussyhub/api-service
 
 # cache dependencies
 RUN echo "fn main() {}" > dummy.rs
-COPY auth-service/Cargo.toml .
+COPY api-service/Cargo.toml .
 RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
 RUN cargo build
 RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
@@ -15,8 +15,8 @@ RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 # build
 WORKDIR /pussyhub/
 COPY . .
-WORKDIR /pussyhub/auth-service
+WORKDIR /pussyhub/api-service
 RUN cargo build
 
-EXPOSE 8089
-ENTRYPOINT ["/pussyhub/auth-service/target/debug/auth_service"]
+EXPOSE 8001
+ENTRYPOINT ["/pussyhub/api-service/target/debug/api_service"]

@@ -35,6 +35,8 @@ async fn main() -> std::io::Result<()> {
     let category_repository = Arc::new(PostgresCategoryRepository::new(pool.clone()));
     let user_repository = Arc::new(PostgresUserRepository::new(pool.clone()));
 
+    let address = env::var("API_SERVICE_ADDRESS").unwrap_or_else("127.0.0.1:8001");
+
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_header()
@@ -66,7 +68,7 @@ async fn main() -> std::io::Result<()> {
                     .service(endpoint::user::get_user_by_id),
             )
     })
-    .bind("127.0.0.1:8001")?
+    .bind(address)?
     .run()
     .await
 }
