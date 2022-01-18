@@ -5,9 +5,12 @@ use crate::services::auth::{is_auth, login, logout, user_info};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use ybc::InputType;
+use yew_router::agent::RouteRequest;
+use yew_router::prelude::*;
 
 use yewtil::future::LinkFuture;
 use yewtil::NeqAssign;
+use crate::routes::AppRoute;
 use crate::State;
 
 pub enum Msg {
@@ -24,6 +27,7 @@ pub struct Login {
     pass: String,
     pass_helper: Option<String>,
     error_info: Option<String>,
+    route_dispatcher: RouteAgentDispatcher,
     link: ComponentLink<Self>,
     dispatch: DispatchProps<BasicStore<State>>,
 }
@@ -39,6 +43,7 @@ impl Component for Login {
             pass: String::new(),
             pass_helper: None,
             error_info: None,
+            route_dispatcher: RouteAgentDispatcher::new(),
             dispatch,
             link
         }
@@ -89,6 +94,8 @@ impl Component for Login {
                         self.dispatch.reduce(|s| s.is_auth = true);
                         self.email = String::new();
                         self.pass = String::new();
+                        self.route_dispatcher
+                            .send(RouteRequest::ChangeRoute(AppRoute::Home.into()));
                     },
                     Err(err) => self.error_info =  Some( match err {
                         AuthError::UserDoesNotExist(_) | AuthError::IncorrectPassword => "The email or password is incorrect".to_string(),

@@ -7,3 +7,7 @@ pub mod footer;
 pub mod login;
 pub mod register;
 pub mod email_confirmation;
+pub mod livestreams;
+pub mod videos;
+pub mod admin;
+pub mod video;
