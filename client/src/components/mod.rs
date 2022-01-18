@@ -10,3 +10,4 @@ pub mod email_confirmation;
 pub mod livestreams;
 pub mod videos;
 pub mod admin;
+pub mod video;

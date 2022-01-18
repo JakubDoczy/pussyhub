@@ -3,7 +3,7 @@ use validator::Validate;
 
 use super::{category::CategoryResponse};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VideoResponse {
     pub id: i64,
     pub creator_id: i64,

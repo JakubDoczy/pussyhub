@@ -1,18 +1,43 @@
-use crate::components::video_player::Video;
+use gloo::console::debug;
+use shared_lib::payload::video::GetVideos;
 use yew::prelude::*;
+use yewtil::future::LinkFuture;
+use crate::services::requests;
+use crate::services::requests::request_get;
+use crate::routes::{AppAnchor, AppRoute};
 
-pub struct Videos {}
+pub enum Msg {
+    GetVideosResult(Result<GetVideos, requests::Error>),
+}
+
+pub struct Videos {
+    videos: GetVideos,
+}
 
 impl Component for Videos {
-    type Message = ();
+    type Message = Msg;
     type Properties = ();
 
-    fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
-        Self {}
+    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        link.send_future(async {
+            let response = request_get::<GetVideos>("/videos".to_string()).await;
+            Msg::GetVideosResult(response)
+        });
+        Self {
+            videos: GetVideos::new(),
+        }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::GetVideosResult(result) => {
+                match result {
+                    Ok(videos) => self.videos = videos,
+                    Err(err) => debug!(err)
+                }
+            }
+        }
+        true
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
@@ -22,36 +47,46 @@ impl Component for Videos {
     fn view(&self) -> Html {
         return html!(
             <>
-                <h3 class="title is-3">{"Trending videos "}<i class="fab fa-hotjar has-text-warning"></i></h3>
-                  <div class="columns">
-                    <div class="column is-6">
-                        <div class="box">
-                          <p class="title">{"Two"}</p>
-                          <Video src={"https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8"} />
+            <h3 class={"title is-3"}>{"Trending videos "}<i class={"fab fa-hotjar has-text-warning"}></i></h3>
+            <div class={"columns"}>
+            {
+                for self.videos.iter().map(|video|
+                {
+                    html!(
+                    <div class={"column is-6"}>
+                        <AppAnchor route=AppRoute::WatchVideo(video.id)>
+                        <div class={"box"}>
+                            <span class={"title"}>
+                                {video.name.clone()}
+                            </span>
+                            <div class="ph-video-icons-container">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="far fa-play-circle"></i>
+                                    </span>
+                                    <span>{video.views}</span>
+                                </span>
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="far fa-thumbs-up"></i>
+                                    </span>
+                                    <span>{video.likes}</span>
+                                </span>
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="far fa-thumbs-down"></i>
+                                    </span>
+                                    <span>{video.dislikes}</span>
+                                </span>
+                            </div>
+                            <img src={video.preview_url.clone()} />
                         </div>
+                        </AppAnchor>
                     </div>
-                    <div class="column">
-                        <div class="box">
-                          <p class="title">{"Two"}</p>
-                          <Video src={""} />
-                        </div>
-                    </div>
-                  </div>
-                  <div class="columns">
-                    <div class="column is-6">
-                        <div class="box">
-                          <p class="title">{"Two"}</p>
-                          <Video src={""} />
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                          <p class="title">{"Two"}</p>
-                          <Video src={""} />
-                        </div>
-                    </div>
-                  </div>
-
+                    )
+                })
+            }
+            </div>
             </>
         );
     }

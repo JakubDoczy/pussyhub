@@ -5,20 +5,21 @@ use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 #[derive(Properties, Clone)]
 pub struct Props {
     pub src: String,
+    pub thumbnail_url: String
 }
 
-pub struct Video {
-    video_source_url: String,
+pub struct VideoPlayer {
+    props: Props,
     element_id: String
 }
 
-impl Component for Video {
+impl Component for VideoPlayer {
     type Message = ();
     type Properties = Props;
 
     fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
         Self {
-            video_source_url: props.src,
+            props,
             element_id: format!("video-{}", Uuid::new_v4())
         }
     }
@@ -38,7 +39,7 @@ impl Component for Video {
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        playVideo(self.element_id.as_str(), self.video_source_url.as_str(), "/cat.svg");
+        playVideo(self.element_id.as_str(), self.props.src.as_str(), self.props.thumbnail_url.as_str());
     }
 }
 
