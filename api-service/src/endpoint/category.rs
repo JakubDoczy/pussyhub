@@ -1,3 +1,4 @@
+use crate::error::category::resolve;
 use crate::model::category::{from_categories, Category};
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
@@ -7,7 +8,6 @@ use shared_lib::payload::category::{
     PutCategoryResponse,
 };
 use std::sync::Arc;
-use crate::error::category::resolve;
 
 #[actix_web::get("/categories/{id}")]
 pub async fn get_category_by_id(
