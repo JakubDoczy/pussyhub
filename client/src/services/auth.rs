@@ -1,4 +1,5 @@
 use std::env;
+use lazy_static::lazy_static;
 use shared_lib::error::auth::AuthError;
 use shared_lib::error::registration::{EmailVerificationError, RegistrationError};
 use shared_lib::payload::auth::AuthPayload;
@@ -6,7 +7,9 @@ use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::{Role, SlimUser};
 use crate::services::jwt::{set_token, get_token, validate};
 
-const HOST: &str = env::var("AUTH_SERVICE_URL").unwrap_or_else("http://127.0.0.1:8089").as_str();
+lazy_static!{
+    static ref HOST: String = env::var("AUTH_SERVICE_URL").unwrap_or("http://127.0.0.1:8089".to_string());
+}
 
 /// Get current user info
 pub fn user_info() -> SlimUser {
@@ -26,7 +29,7 @@ pub fn is_auth() -> bool {
 /// Login a user
 pub async fn login(login_info: AuthPayload) -> Result<SlimUser, AuthError> {
     let response = reqwest::Client::new()
-        .request(reqwest::Method::POST, format!{"{}/auth", HOST})
+        .request(reqwest::Method::POST, format!{"{}/auth", *HOST})
         .header("Content-Type", "application/json")
         .json(&login_info)
         .send().await;
@@ -51,7 +54,7 @@ pub async fn login(login_info: AuthPayload) -> Result<SlimUser, AuthError> {
 /// Register a new user
 pub async fn register(register_info: UserRegistrationPayload) -> Result<SlimUser, RegistrationError> {
     let response = reqwest::Client::new()
-        .request(reqwest::Method::POST, format!{"{}/registration", HOST})
+        .request(reqwest::Method::POST, format!{"{}/registration", *HOST})
         .header("Content-Type", "application/json")
         .json(&register_info)
         .send().await;
@@ -81,7 +84,7 @@ pub fn logout()  {
 /// Validate email confirmation token
 pub async fn confirm_email(confirmation_token: String) -> Result<String, EmailVerificationError> {
     let response = reqwest::Client::new()
-        .request(reqwest::Method::GET, format!("{}/confirmation/{}", HOST, confirmation_token))
+        .request(reqwest::Method::GET, format!("{}/confirmation/{}", *HOST, confirmation_token))
         .send().await;
 
     if let Ok(data) = response {

@@ -16,6 +16,7 @@ RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 WORKDIR /pussyhub/
 COPY . .
 WORKDIR /pussyhub/auth-service
+ENV SQLX_OFFLINE=1
 RUN cargo build
 
 EXPOSE 8089

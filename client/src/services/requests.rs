@@ -1,12 +1,15 @@
 use std::collections::HashMap;
+use std::env;
+use gloo::console::debug;
+use lazy_static::lazy_static;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 
 use crate::services::jwt::get_token;
 
-// TODO set from env
-// dotenv!("API_ROOT");
-const API_ROOT: &str = "http://127.0.0.1:8001/api";
+lazy_static!{
+    static ref API_ROOT: String = env::var("API_SERVICE_URL").unwrap_or("http://127.0.0.1:8001/api".to_string());
+}
 
 impl From<Error> for JsValue {
 
@@ -24,7 +27,7 @@ pub async fn request<B, T>(method: reqwest::Method, url: String, body: B) -> Res
         B: Serialize + std::fmt::Debug,
 {
     let allow_body = method == reqwest::Method::POST || method == reqwest::Method::PUT;
-    let url = format!("{}{}", API_ROOT, url);
+    let url = format!("{}{}", *API_ROOT, url);
     let mut builder = reqwest::Client::new()
         .request(method, url)
         .header("Content-Type", "application/json");
