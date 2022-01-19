@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Debug, Serialize, Deserialize, Clone, Validate)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Validate)]
 pub struct CategoryResponse {
     pub id: i64,
     #[validate(length(min = 1, max = 255, message = "Category name must not be empty"))]
