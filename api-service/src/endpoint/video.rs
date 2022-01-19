@@ -1,11 +1,16 @@
 use std::sync::Arc;
 
+use crate::auth::check_role;
+use crate::error;
+use crate::error::auth::{resolve as auth_resolve, AuthError};
 use crate::error::video::resolve;
+use crate::model::user::{Role as ModelRole, User};
 use crate::model::video::{from_videos, Video};
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use shared_lib::payload::video::{
     GetVideoResponse, PostVideoRequest, PostVideoResponse, PutVideoRequest, PutVideoResponse,
 };
+use shared_lib::token_validation::{Role, TokenValidator};
 
 use crate::repository::video_repository::{PostgresVideoRepository, VideoRepository};
 
@@ -27,12 +32,24 @@ pub async fn get_video_by_id(
 #[actix_web::put("/videos/{id}")]
 pub async fn put_video_by_id(
     data: web::Data<Arc<PostgresVideoRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     params: web::Path<i64>,
     video: web::Json<PutVideoRequest>,
+    req: HttpRequest,
 ) -> impl Responder {
-    let id = params.into_inner();
+    let check = check_role(&req, token_validator, Role::User);
+    if let Err(error) = check {
+        return error;
+    }
+    let user = User::from(check.unwrap());
+    let video = Video::from(video.into_inner());
 
-    let response = data.update_video(id, Video::from(video.into_inner())).await;
+    if user.id != video.creator_id {
+        return auth_resolve(AuthError::AccessDenied);
+    }
+
+    let id = params.into_inner();
+    let response = data.update_video(id, video).await;
 
     match response {
         Ok(video) => HttpResponse::Ok().json(PutVideoResponse::from(video)),
@@ -43,9 +60,22 @@ pub async fn put_video_by_id(
 #[actix_web::post("/videos")]
 pub async fn post_video(
     data: web::Data<Arc<PostgresVideoRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     video: web::Json<PostVideoRequest>,
+    req: HttpRequest,
 ) -> impl Responder {
-    let response = data.create_video(Video::from(video.into_inner())).await;
+    let check = check_role(&req, token_validator, Role::User);
+    if let Err(error) = check {
+        return error;
+    }
+    let user = User::from(check.unwrap());
+    let video = Video::from(video.into_inner());
+
+    if user.id != video.creator_id {
+        return auth_resolve(AuthError::AccessDenied);
+    }
+
+    let response = data.create_video(video).await;
 
     match response {
         Ok(video) => HttpResponse::Ok().json(PostVideoResponse::from(video)),
@@ -56,11 +86,29 @@ pub async fn post_video(
 #[actix_web::delete("/videos/{id}")]
 pub async fn delete_video(
     data: web::Data<Arc<PostgresVideoRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     params: web::Path<i64>,
+    req: HttpRequest,
 ) -> impl Responder {
     let id = params.into_inner();
+    let check = check_role(&req, token_validator, Role::User);
+    if let Err(error) = check {
+        return error;
+    }
 
-    let response = data.delete_video(id).await;
+    let response = data.get_video(id).await;
+    if let Err(e) = response {
+        return resolve(e);
+    }
+
+    let user = User::from(check.unwrap());
+    let video = response.unwrap();
+
+    if user.id != video.creator_id && user.user_role != ModelRole::Admin {
+        return auth_resolve(AuthError::AccessDenied);
+    }
+
+    let response = data.delete_video(video).await;
 
     match response {
         Ok(_) => HttpResponse::Ok().json(""),

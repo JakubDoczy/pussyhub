@@ -24,7 +24,7 @@ pub fn check_role(
                 None => Err(resolve(AuthError::TokenValidationError)),
                 Some(token) => match token_validator.validate(token) {
                     Ok(user) => {
-                        if user.role != role {
+                        if !is_granted(role, user.role.clone()) {
                             return Err(resolve(AuthError::AccessDenied));
                         }
                         Ok(user)
@@ -43,4 +43,12 @@ fn parse_token(token: &str) -> Option<&str> {
         return None;
     }
     Some(parts[1])
+}
+
+fn is_granted(required: Role, granted: Role) -> bool {
+    match required {
+        Role::Admin => granted == Role::Admin,
+        Role::User => granted == Role::User || granted == Role::Admin,
+        Role::Unauthorized => true,
+    }
 }

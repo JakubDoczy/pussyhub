@@ -14,7 +14,7 @@ pub trait VideoRepository {
     async fn get_video(&self, id: i64) -> Result<Video, DBVideoError>;
     async fn update_video(&self, id: i64, video: Video) -> Result<Video, DBVideoError>;
     async fn create_video(&self, video: Video) -> Result<Video, DBVideoError>;
-    async fn delete_video(&self, id: i64) -> Result<(), DBVideoError>;
+    async fn delete_video(&self, video: Video) -> Result<(), DBVideoError>;
 
     async fn list_in_category(&self, category: i64) -> Result<Vec<Video>, DBVideoError>;
     async fn list_by_user(&self, user: i64) -> Result<Vec<Video>, DBVideoError>;
@@ -144,13 +144,13 @@ impl VideoRepository for PostgresVideoRepository {
         }
     }
 
-    async fn delete_video(&self, id: i64) -> Result<(), DBVideoError> {
+    async fn delete_video(&self, video: Video) -> Result<(), DBVideoError> {
         let res = sqlx::query!(
             r#"
             DELETE FROM video 
             WHERE id = $1
             "#,
-            id
+            video.id
         )
         .execute(&*self.pg_pool)
         .await;
@@ -158,7 +158,7 @@ impl VideoRepository for PostgresVideoRepository {
         match res {
             Ok(_) => Ok(()),
             Err(e) => match e {
-                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
+                sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(video.id.unwrap())),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
         }
@@ -266,48 +266,6 @@ impl VideoRepository for PostgresVideoRepository {
             Err(e) => match e {
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
-        }
-    }
-
-    async fn remove_rating_from_video(&self, id: i64, rating: i16) -> Result<(), DBVideoError> {
-        if rating == 1 {
-            let res = sqlx::query!(
-                r#"
-            UPDATE video
-            SET
-                likes = likes - 1
-            WHERE id = $1
-            "#,
-                id
-            )
-            .execute(&*self.pg_pool)
-            .await;
-
-            if let Err(e) = res {
-                return match e {
-                    _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
-                };
-            };
-            Ok(())
-        } else {
-            let res = sqlx::query!(
-                r#"
-            UPDATE video
-            SET
-                dislikes = dislikes - 1
-            WHERE id = $1
-            "#,
-                id
-            )
-            .execute(&*self.pg_pool)
-            .await;
-
-            if let Err(e) = res {
-                return match e {
-                    _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
-                };
-            };
-            Ok(())
         }
     }
 
@@ -496,6 +454,48 @@ impl VideoRepository for PostgresVideoRepository {
                 sqlx::Error::RowNotFound => Err(DBVideoError::VideoDoesNotExist(id)),
                 _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
             },
+        }
+    }
+
+    async fn remove_rating_from_video(&self, id: i64, rating: i16) -> Result<(), DBVideoError> {
+        if rating == 1 {
+            let res = sqlx::query!(
+                r#"
+            UPDATE video
+            SET
+                likes = likes - 1
+            WHERE id = $1
+            "#,
+                id
+            )
+            .execute(&*self.pg_pool)
+            .await;
+
+            if let Err(e) = res {
+                return match e {
+                    _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
+                };
+            };
+            Ok(())
+        } else {
+            let res = sqlx::query!(
+                r#"
+            UPDATE video
+            SET
+                dislikes = dislikes - 1
+            WHERE id = $1
+            "#,
+                id
+            )
+            .execute(&*self.pg_pool)
+            .await;
+
+            if let Err(e) = res {
+                return match e {
+                    _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
+                };
+            };
+            Ok(())
         }
     }
 }

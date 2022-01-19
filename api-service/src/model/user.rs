@@ -2,6 +2,7 @@ use ::serde::{Deserialize, Serialize};
 use chrono::serde::ts_milliseconds;
 use chrono::{DateTime, Utc};
 use shared_lib::payload::user::UserResponse;
+use shared_lib::token_validation::{Role as SlimRole, SlimUser};
 
 #[derive(Clone, Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct User {
@@ -21,6 +22,7 @@ pub struct User {
 pub enum Role {
     Admin,
     User,
+    Unauthorized,
 }
 
 impl From<User> for UserResponse {
@@ -34,6 +36,31 @@ impl From<User> for UserResponse {
             picture_url: user.picture_url,
             created_at: user.created_at.to_rfc3339(),
             verified: user.verified,
+        }
+    }
+}
+
+impl From<SlimUser> for User {
+    fn from(user: SlimUser) -> Self {
+        User {
+            id: user.user_id,
+            email: user.email,
+            verified: user.verified,
+            user_role: Role::from(user.role),
+            username: user.username,
+            description: None,
+            picture_url: None,
+            created_at: chrono::offset::Utc::now(),
+        }
+    }
+}
+
+impl From<SlimRole> for Role {
+    fn from(role: SlimRole) -> Self {
+        match role {
+            SlimRole::Admin => Role::Admin,
+            SlimRole::User => Role::User,
+            SlimRole::Unauthorized => Role::Unauthorized,
         }
     }
 }

@@ -6,7 +6,7 @@ pub mod video;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-struct Error {
-    code: u16,
-    message: String,
+pub struct Error {
+    pub(crate) code: u16,
+    pub(crate) message: String,
 }
