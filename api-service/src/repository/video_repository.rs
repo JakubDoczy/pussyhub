@@ -82,13 +82,15 @@ impl VideoRepository for PostgresVideoRepository {
                 creator_id = $1,
                 name = $2,
                 preview_url = $3,
-                video_url = $4
-            WHERE id = $5
+                video_url = $4,
+                category_id = $5
+            WHERE id = $6
             "#,
             video.creator_id,
             video.name,
             video.preview_url,
             video.video_url,
+            video.category_id,
             id
         )
         .execute(&*self.pg_pool)
@@ -304,7 +306,7 @@ impl VideoRepository for PostgresVideoRepository {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 };
             }
-            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
+            if let Err(_) = self.remove_rating_from_video(id, rating.rating).await {}
 
             if rating.rating == 1 {
                 return Ok(toggled);
@@ -391,7 +393,7 @@ impl VideoRepository for PostgresVideoRepository {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 };
             }
-            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
+            if let Err(_) = self.remove_rating_from_video(id, rating.rating).await {}
 
             if rating.rating == -1 {
                 return Ok(toggled);
