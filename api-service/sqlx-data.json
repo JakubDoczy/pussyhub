@@ -1,89 +1,15 @@
 {
   "db": "PostgreSQL",
-  "08c95226327cad0dd24d4bc13ebbc60736e30f0057eb9f7f019e797a75ac62a0": {
-    "query": "\n            SELECT \n                video.id as \"id?\",\n                creator_id, \n                video.name as name,\n                preview_url, \n                video_url, \n                views, \n                likes, \n                dislikes, \n                created_at,\n                category.id as category_id,\n                category.name as \"category_name?\",\n                rating.rating as \"rating?\"\n            FROM video\n                INNER JOIN category ON (category.id = video.category_id)\n                LEFT JOIN rating ON (video.id = rating.video_id)\n            WHERE video.id = $1\n            ",
+  "0ce2584540ff13825206352421e1164b5b71583d680c8c8c9c7d99012b1c0b36": {
+    "query": "\n            UPDATE video\n            SET\n                likes = likes - 1\n            WHERE id = $1\n            ",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id?",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "creator_id",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 2,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "preview_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "video_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "views",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 6,
-          "name": "likes",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 7,
-          "name": "dislikes",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "category_id",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 10,
-          "name": "category_name?",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 11,
-          "name": "rating?",
-          "type_info": "Int2"
-        }
-      ],
+      "columns": [],
       "parameters": {
         "Left": [
           "Int8"
         ]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
+      "nullable": []
     }
   },
   "25a49be0084f853fb743a537fc19f17083934f914fd0120ba4bff8b52eb2c9ca": {
@@ -112,8 +38,8 @@
       ]
     }
   },
-  "27fc14c6d00bc4cea68389f761575e8d13f151c86b9a9830e3eeb9112d19c213": {
-    "query": "\n            INSERT INTO rating (\n                user_id,\n                video_id,\n                rating\n            )\n            VALUES ($1, $2, $3)\n            ",
+  "28b0374645277751720abf402932d9682210da031e741f44d5254d026cfdb2fa": {
+    "query": "\n        INSERT INTO rating (\n            user_id,\n            video_id,\n            rating\n        )\n        VALUES ($1, $2, $3)\n        ",
     "describe": {
       "columns": [],
       "parameters": {
@@ -162,13 +88,25 @@
       "nullable": []
     }
   },
-  "4be1b8fc151f7650db347210e71a6cabe9d3b8c54edafe38a9752acac53760e3": {
-    "query": "\n            UPDATE video\n            SET\n                dislikes = dislikes + $1\n            WHERE id = $2\n            ",
+  "477f733f35120d4393c60620e5b8f6f990b3175ec6c91ce6d9e836959ada05af": {
+    "query": "\n                DELETE FROM rating\n                WHERE user_id = $1 AND video_id = $2\n                ",
     "describe": {
       "columns": [],
       "parameters": {
         "Left": [
-          "Int4",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "4e9a043f4cf8e3e6ab3fad7ea3c1eee1baa390ef701f23a56f5266a52d322784": {
+    "query": "\n            UPDATE video\n            SET\n                likes = likes + 1\n            WHERE id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
           "Int8"
         ]
       },
@@ -201,34 +139,20 @@
       ]
     }
   },
-  "5b167c5ed6a4883df6209369a89ccf1a5b4dda25112eb35de24bc102e5d529b5": {
-    "query": "\n            UPDATE video\n            SET\n                likes = likes + $1\n            WHERE id = $2\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int8"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "61212a89fd02ca4271950cee44611256aedda4556436c63b3d4559ad1eaac308": {
-    "query": "\n            DELETE FROM rating\n            WHERE\n                user_id = $1 AND\n                video_id = $2\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "620af3296a217da57b86159be9fb8e07160915fd1680d58ed05e7dda343c29b4": {
     "query": "\n            DELETE FROM video \n            WHERE id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "658b2e2114710e7097e328c8fb5816d5abc7ec1153677edf191c8cd35ed69c23": {
+    "query": "\n            UPDATE video\n            SET\n                dislikes = dislikes + 1\n            WHERE id = $1\n            ",
     "describe": {
       "columns": [],
       "parameters": {
@@ -411,6 +335,92 @@
       ]
     }
   },
+  "8e9c92841b700217befcd480db35fc3a6d63b31c82dd76ac4ad8774c7dc2e569": {
+    "query": "\n            SELECT \n                video.id as \"id?\",\n                creator_id, \n                video.name as name,\n                preview_url, \n                video_url, \n                views,\n                likes,\n                dislikes,\n                created_at,\n                category.id as category_id,\n                category.name as \"category_name?\",\n                rating.rating as \"rating?\"\n            FROM video\n                INNER JOIN category ON (category.id = video.category_id)\n                LEFT JOIN rating ON (video.id = rating.video_id)\n            WHERE video.id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id?",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "creator_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "preview_url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "video_url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "views",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "likes",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "dislikes",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "category_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "category_name?",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 11,
+          "name": "rating?",
+          "type_info": "Int2"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "a296a00db85766ee31b2887789df2a27b6c1fece067da4c286d430ba35b0e37e": {
     "query": "\n            UPDATE video\n            SET\n                creator_id = $1,\n                name = $2,\n                preview_url = $3,\n                video_url = $4\n            WHERE id = $5\n            ",
     "describe": {
@@ -458,6 +468,18 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "c018fa6e4876bc2d34e091dbb6f9833ad4c8fc797977d24cca5af5e54d203ddd": {
+    "query": "\n            UPDATE video\n            SET\n                dislikes = dislikes - 1\n            WHERE id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": []
     }
   },
   "c21df282666a237fe526a6e69fffd5be02c6f8b2c72bb23832990d9d9728813d": {
