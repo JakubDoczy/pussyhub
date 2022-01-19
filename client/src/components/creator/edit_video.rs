@@ -147,7 +147,9 @@ impl Component for EditVideo {
             Msg::LoadCategories(response) => {
                 match response {
                     Ok(categories) => {
-                        self.category = categories.iter().next().map(|c| c.clone());
+                        if self.category.is_none() {
+                            self.category = categories.iter().next().map(|c| c.clone());
+                        }
                         self.categories = categories;
                     },
                     Err(err) => debug!(err)
@@ -160,6 +162,7 @@ impl Component for EditVideo {
                         self.name = video.name;
                         self.video_url = video.video_url;
                         self.preview_url = video.preview_url;
+                        self.category = Some(video.category);
                     },
                     Err(err) => debug!(err)
                 }
@@ -213,7 +216,7 @@ impl Component for EditVideo {
                         <ybc::Select name={"category"} value=category.name.clone() update=self.link.callback(|c| Msg::UpdateCategory(c))>
                         {
                             for self.categories.iter().map(|c| {
-                                html!( <option>{c.name.clone()}</option> )
+                                html!( <option selected={ category.name == c.name } >{c.name.clone()}</option> )
                             })
                         }
                         </ybc::Select>
