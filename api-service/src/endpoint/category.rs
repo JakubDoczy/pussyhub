@@ -2,6 +2,7 @@ use crate::auth::check_role;
 use crate::error::auth::resolve as resolve_auth;
 use crate::error::auth::AuthError;
 use crate::error::category::resolve;
+use crate::error::Error;
 use crate::model::category::{from_categories, Category};
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
@@ -36,6 +37,13 @@ pub async fn put_category(
     category: web::Json<PutCategoryRequest>,
     req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = category.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
     let id = params.into_inner();
 
     let check = check_role(&req, token_validator, Role::Admin);
@@ -60,6 +68,13 @@ pub async fn post_category(
     category: web::Json<PostCategoryRequest>,
     req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = category.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
     let check = check_role(&req, token_validator, Role::Admin);
     if let Err(error) = check {
         return error;

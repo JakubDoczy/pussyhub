@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use validator::Validate;
+use validator::{Validate, ValidationErrors};
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct CategoryResponse {
@@ -23,3 +23,17 @@ pub type PostCategoryRequest = CategoryRequest;
 pub type PostCategoryResponse = CategoryResponse;
 
 pub type GetCategoriesResponse = Vec<CategoryResponse>;
+
+impl CategoryRequest {
+
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}
+
+impl CategoryResponse {
+
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}
