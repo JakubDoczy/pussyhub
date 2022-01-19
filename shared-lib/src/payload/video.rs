@@ -37,3 +37,9 @@ pub type PostVideoRequest = VideoRequest;
 pub type PostVideoResponse = VideoResponse;
 
 pub type GetVideos = Vec<VideoResponse>;
+
+impl VideoRequest {
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}

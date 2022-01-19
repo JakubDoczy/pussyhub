@@ -4,6 +4,7 @@ use crate::auth::check_role;
 use crate::error;
 use crate::error::auth::{resolve as auth_resolve, AuthError};
 use crate::error::video::resolve;
+use crate::error::Error;
 use crate::model::user::{Role as ModelRole, User};
 use crate::model::video::{from_videos, Video};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
@@ -37,6 +38,13 @@ pub async fn put_video_by_id(
     video: web::Json<PutVideoRequest>,
     req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = video.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
     let check = check_role(&req, token_validator, Role::User);
     if let Err(error) = check {
         return error;
@@ -64,6 +72,13 @@ pub async fn post_video(
     video: web::Json<PostVideoRequest>,
     req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = video.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
     let check = check_role(&req, token_validator, Role::User);
     if let Err(error) = check {
         return error;
