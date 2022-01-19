@@ -1,7 +1,7 @@
-use serde::{Serialize, Deserialize};
-use validator::Validate;
+use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationErrors};
 
-use super::{category::CategoryResponse};
+use super::category::CategoryResponse;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VideoResponse {
@@ -15,7 +15,7 @@ pub struct VideoResponse {
     pub dislikes: i32,
     pub created_at: String,
     pub rating: Option<i16>,
-    pub category: CategoryResponse
+    pub category: CategoryResponse,
 }
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
@@ -25,7 +25,7 @@ pub struct VideoRequest {
     pub name: String,
     pub preview_url: String,
     pub video_url: String,
-    pub category: i64
+    pub category: i64,
 }
 
 pub type GetVideoResponse = VideoResponse;
