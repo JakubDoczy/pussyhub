@@ -1,3 +1,4 @@
+use crate::auth::create_validator;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::middleware::Logger;
@@ -6,6 +7,7 @@ use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::{env, sync::Arc};
 
+mod auth;
 mod endpoint;
 mod error;
 mod model;
@@ -37,6 +39,8 @@ async fn main() -> std::io::Result<()> {
 
     let address = env::var("API_SERVICE_ADDRESS").unwrap_or("127.0.0.1:8001".to_string());
 
+    let token_validator = Arc::new(create_validator());
+
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_header()
@@ -48,6 +52,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(video_repository.clone()))
             .app_data(web::Data::new(category_repository.clone()))
             .app_data(web::Data::new(user_repository.clone()))
+            .app_data(web::Data::new(token_validator.clone()))
             .service(
                 web::scope("/api")
                     .service(endpoint::video::get_video_by_id)
