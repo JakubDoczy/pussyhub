@@ -3,22 +3,22 @@ use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Error, Debug, Serialize, Deserialize)]
-pub enum DBCategoryError {
-    #[error("The database does not contain category \"{0}\".")]
-    CategoryDoesNotExists(i64),
+#[derive(Error, Debug, Serialize)]
+pub enum DBUserError {
+    #[error("The database does not contain user \"{0}\".")]
+    UserDoesNotExist(i64),
 
     #[error("Unexpected error \"{0}\".")]
     UnexpectedError(String),
 }
 
-pub fn resolve(error: DBCategoryError) -> HttpResponse {
+pub fn resolve(error: DBUserError) -> HttpResponse {
     match error {
-        DBCategoryError::CategoryDoesNotExists(_) => HttpResponse::NotFound().json(ResponseError {
+        DBUserError::UserDoesNotExist(_) => HttpResponse::NotFound().json(ResponseError {
             code: 404,
             message: error.to_string(),
         }),
-        DBCategoryError::UnexpectedError(_) => {
+        DBUserError::UnexpectedError(_) => {
             HttpResponse::InternalServerError().json(ResponseError {
                 code: 500,
                 message: "Internal server error".to_string(),

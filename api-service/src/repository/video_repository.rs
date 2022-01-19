@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::error::video::DBVideoError;
 use crate::model::user::User;
 use crate::model::video::Video;
 use anyhow::Result;
@@ -271,16 +272,16 @@ impl VideoRepository for PostgresVideoRepository {
     async fn remove_rating_from_video(&self, id: i64, rating: i16) -> Result<(), DBVideoError> {
         if rating == 1 {
             let res = sqlx::query!(
-            r#"
+                r#"
             UPDATE video
             SET
                 likes = likes - 1
             WHERE id = $1
             "#,
-            id
-        )
-                .execute(&*self.pg_pool)
-                .await;
+                id
+            )
+            .execute(&*self.pg_pool)
+            .await;
 
             if let Err(e) = res {
                 return match e {
@@ -288,19 +289,18 @@ impl VideoRepository for PostgresVideoRepository {
                 };
             };
             Ok(())
-        }
-        else {
+        } else {
             let res = sqlx::query!(
-            r#"
+                r#"
             UPDATE video
             SET
                 dislikes = dislikes - 1
             WHERE id = $1
             "#,
-            id
-        )
-                .execute(&*self.pg_pool)
-                .await;
+                id
+            )
+            .execute(&*self.pg_pool)
+            .await;
 
             if let Err(e) = res {
                 return match e {
@@ -339,8 +339,8 @@ impl VideoRepository for PostgresVideoRepository {
                 user.id,
                 id
             )
-                .execute(&*self.pg_pool)
-                .await;
+            .execute(&*self.pg_pool)
+            .await;
 
             if let Err(e) = res {
                 return match e {
@@ -348,8 +348,7 @@ impl VideoRepository for PostgresVideoRepository {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 };
             }
-            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {
-            }
+            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
         }
 
         let res = sqlx::query!(
@@ -410,8 +409,8 @@ impl VideoRepository for PostgresVideoRepository {
             id,
             user.id
         )
-            .fetch_one(&*self.pg_pool)
-            .await;
+        .fetch_one(&*self.pg_pool)
+        .await;
 
         if let Ok(rating) = res {
             toggled = true;
@@ -423,8 +422,8 @@ impl VideoRepository for PostgresVideoRepository {
                 user.id,
                 id
             )
-                .execute(&*self.pg_pool)
-                .await;
+            .execute(&*self.pg_pool)
+            .await;
 
             if let Err(e) = res {
                 return match e {
@@ -432,7 +431,7 @@ impl VideoRepository for PostgresVideoRepository {
                     _ => Err(DBVideoError::UnexpectedError(format!("{:?}", e))),
                 };
             }
-            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await { }
+            if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
         }
 
         let res = sqlx::query!(
@@ -444,8 +443,8 @@ impl VideoRepository for PostgresVideoRepository {
             "#,
             id
         )
-            .execute(&*self.pg_pool)
-            .await;
+        .execute(&*self.pg_pool)
+        .await;
 
         if let Err(e) = res {
             return match e {
@@ -467,8 +466,8 @@ impl VideoRepository for PostgresVideoRepository {
             id,
             -1
         )
-            .execute(&*self.pg_pool)
-            .await;
+        .execute(&*self.pg_pool)
+        .await;
 
         return match res {
             Ok(_) => Ok(toggled),
@@ -499,19 +498,4 @@ impl VideoRepository for PostgresVideoRepository {
             },
         }
     }
-}
-
-#[derive(Error, Debug, Serialize)]
-pub enum DBVideoError {
-    #[error("The database does not contain video \"{0}\".")]
-    VideoDoesNotExist(i64),
-
-    #[error("Video \"{0}\" has already like.")]
-    VideoAlreadyHasLike(i64),
-
-    #[error("Video \"{0}\" has already dislike.")]
-    VideoAlreadyHasDislike(i64),
-
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),
 }

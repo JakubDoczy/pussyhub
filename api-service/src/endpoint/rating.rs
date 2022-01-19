@@ -1,3 +1,4 @@
+use crate::error::video::resolve;
 use crate::model::user::{Role, User};
 use crate::repository::video_repository::VideoRepository;
 use crate::PostgresVideoRepository;
@@ -29,7 +30,7 @@ pub async fn like_video(
 
     match response {
         Ok(toggled) => HttpResponse::Ok().json(RatingResponse { toggled }),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
 
@@ -57,6 +58,6 @@ pub async fn dislike_video(
 
     match response {
         Ok(toggled) => HttpResponse::Ok().json(RatingResponse { toggled }),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }

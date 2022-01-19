@@ -52,5 +52,6 @@ INSERT INTO registered_user (email, verified, password, user_role, username, des
 INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
 INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.', '2016-06-22 19:10:25-07');
 
+INSERT INTO category (name) VALUES ('Pussy');
 
 COMMIT;

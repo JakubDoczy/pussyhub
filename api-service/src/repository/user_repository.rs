@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::error::user::DBUserError;
 use crate::model::user::{Role, User};
 use anyhow::Result;
 use async_trait::async_trait;
@@ -53,13 +54,4 @@ impl UserRepository for PostgresUserRepository {
             },
         }
     }
-}
-
-#[derive(Error, Debug, Serialize)]
-pub enum DBUserError {
-    #[error("The database does not contain user \"{0}\".")]
-    UserDoesNotExist(i64),
-
-    #[error("Unexpected error \"{0}\".")]
-    UnexpectedError(String),
 }

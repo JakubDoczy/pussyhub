@@ -1,6 +1,7 @@
 use crate::PostgresUserRepository;
 use actix_web::{web, HttpResponse, Responder};
 
+use crate::error::user::resolve;
 use crate::repository::user_repository::UserRepository;
 use shared_lib::payload::user::GetUserResponse;
 use std::sync::Arc;
@@ -16,6 +17,6 @@ pub async fn get_user_by_id(
 
     match response {
         Ok(user) => HttpResponse::Ok().json(GetUserResponse::from(user)),
-        Err(e) => HttpResponse::InternalServerError().json(e),
+        Err(e) => resolve(e),
     }
 }
