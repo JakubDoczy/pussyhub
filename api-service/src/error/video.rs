@@ -3,7 +3,7 @@ use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Error, Debug, Serialize)]
+#[derive(Error, Debug, Serialize, Deserialize)]
 pub enum DBVideoError {
     #[error("The database does not contain video \"{0}\".")]
     VideoDoesNotExist(i64),

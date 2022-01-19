@@ -1,6 +1,4 @@
 use crate::auth::check_role;
-use crate::error::auth::resolve as resolve_auth;
-use crate::error::auth::AuthError;
 use crate::error::category::resolve;
 use crate::error::Error;
 use crate::model::category::{from_categories, Category};

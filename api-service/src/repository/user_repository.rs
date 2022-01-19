@@ -4,9 +4,7 @@ use crate::error::user::DBUserError;
 use crate::model::user::{Role, User};
 use anyhow::Result;
 use async_trait::async_trait;
-use serde::Serialize;
 use sqlx::PgPool;
-use thiserror::Error;
 
 #[async_trait]
 pub trait UserRepository {

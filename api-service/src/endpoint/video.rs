@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use crate::auth::check_role;
-use crate::error;
 use crate::error::auth::{resolve as auth_resolve, AuthError};
 use crate::error::video::resolve;
 use crate::error::Error;

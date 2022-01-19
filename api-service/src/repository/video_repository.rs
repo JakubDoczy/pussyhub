@@ -5,9 +5,7 @@ use crate::model::user::User;
 use crate::model::video::Video;
 use anyhow::Result;
 use async_trait::async_trait;
-use serde::Serialize;
 use sqlx::PgPool;
-use thiserror::Error;
 
 #[async_trait]
 pub trait VideoRepository {
@@ -307,6 +305,10 @@ impl VideoRepository for PostgresVideoRepository {
                 };
             }
             if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
+
+            if rating.rating == 1 {
+                return Ok(toggled);
+            }
         }
 
         let res = sqlx::query!(
@@ -390,6 +392,10 @@ impl VideoRepository for PostgresVideoRepository {
                 };
             }
             if let Err(e) = self.remove_rating_from_video(id, rating.rating).await {}
+
+            if rating.rating == -1 {
+                return Ok(toggled);
+            }
         }
 
         let res = sqlx::query!(

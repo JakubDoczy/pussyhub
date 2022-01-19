@@ -1,6 +1,5 @@
 use crate::error::auth::{resolve, AuthError};
-use actix_web::web::Data;
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse};
 use shared_lib::token_validation::{Role, SlimUser, TokenValidator};
 use std::sync::Arc;
 
