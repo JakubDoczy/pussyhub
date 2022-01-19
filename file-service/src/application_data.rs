@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use shared_lib::token_validation::TokenValidator;
 
@@ -9,9 +9,7 @@ pub(crate) struct ApplicationData {
 
 impl ApplicationData {
     /// Creates a new application state.
-    pub fn new(
-        token_validator: TokenValidator
-    ) -> Self {
+    pub fn new(token_validator: TokenValidator) -> Self {
         Self {
             token_validator: Mutex::new(token_validator),
         }
