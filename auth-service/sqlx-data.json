@@ -1,0 +1,92 @@
+{
+  "db": "PostgreSQL",
+  "5acbd85d250bbdf4c572a9201404064278d84e49ef973d9778abe96748714d11": {
+    "query": "\n            SELECT id, verified, username, password, user_role as \"user_role: SqlRole\" FROM registered_user WHERE email = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "verified",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 2,
+          "name": "username",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_role: SqlRole",
+          "type_info": {
+            "Custom": {
+              "name": "role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "user"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "c49155fe1bfa281d5a461cac6b0de0913ac87d196edd6b489da9618980f35cf2": {
+    "query": "\n            UPDATE registered_user\n            SET verified = TRUE\n            WHERE id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "f7c0db6d1983003b3aab6aa87b88b4bf408e4a4effce15cacee1a1d625caa1d3": {
+    "query": "\n            INSERT INTO registered_user (email, verified, username, password, user_role, created_at) \n            VALUES ($1, FALSE, $2, $3, 'user', $4)\n            RETURNING id\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Timestamptz"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  }
+}
