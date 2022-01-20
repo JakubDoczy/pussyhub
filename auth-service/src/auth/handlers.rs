@@ -1,6 +1,7 @@
 use actix_web::{web, HttpResponse};
 
 use tracing::{debug, error};
+use argon2;
 
 use shared_lib::payload::auth::AuthPayload;
 use shared_lib::error::auth::AuthError;
@@ -13,6 +14,7 @@ macro_rules! shared_call {
         $app_data.$argument.lock().unwrap().$method($($method_args),*)
     };
 }
+
 
 /// Handles authentication requests.
 /// If successful, returns JSON Web Token.
@@ -33,11 +35,11 @@ pub(crate) async fn auth_handler(
 
     match auth_result {
         Ok((slim_user, hash)) => {
-            if hash == auth_payload.password {
+            if argon2.verify_encoded(&hash, auth_payload.password.as_bytes()).expect("Internal error, argon failed.") {
                 let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
                 match token_result {
                     Ok(token) => {
-                        debug!("Successfuly created token: {:?}", token);
+                        debug!("Successfully created token: {:?}", token);
                         HttpResponse::Ok().content_type("application/jwt").body(token)
                     }
                     Err(e) => {
