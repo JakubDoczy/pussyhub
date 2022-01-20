@@ -35,7 +35,7 @@ pub(crate) async fn auth_handler(
 
     match auth_result {
         Ok((slim_user, hash)) => {
-            if argon2.verify_encoded(&hash, auth_payload.password.as_bytes()).expect("Internal error, argon failed.") {
+            if argon2::verify_encoded(&hash, auth_payload.password.as_bytes()).expect("Internal error, argon failed.") {
                 let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
                 match token_result {
                     Ok(token) => {
