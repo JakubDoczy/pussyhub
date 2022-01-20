@@ -11,3 +11,4 @@ pub mod livestreams;
 pub mod videos;
 pub mod admin;
 pub mod video;
+pub mod creator;

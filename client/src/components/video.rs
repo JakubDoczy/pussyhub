@@ -1,4 +1,5 @@
 use gloo::console::debug;
+use shared_lib::payload::rating::RatingResponse;
 use shared_lib::payload::user::GetUserResponse;
 use shared_lib::payload::video::GetVideoResponse;
 use yew::prelude::*;
@@ -92,40 +93,32 @@ impl Component for VideoBase {
             Msg::LikeClicked => {
                 if let Some(video) = self.video.as_mut() {
                     let id = video.id.clone();
-                    let rating = video.rating.clone();
                     spawn_local(async move {
-                        let should_like = match rating {
-                            None | Some(-1) => true,
-                            Some(_) => false
-                        };
-                        match request_post::<bool,()>(format!("/videos/{}/like", id), should_like).await {
+                        match request_post::<(),RatingResponse>(format!("/videos/{}/like", id), ()).await {
                             Ok(_) => {}
                             Err(err) => debug!(err)
                         };
                     });
-                    video.rating = match video.rating {
-                        None | Some(-1) => Some(1),
-                        Some(_) => None
+                    match video.rating.clone() {
+                        None => { video.rating = Some(1); video.likes += 1 },
+                        Some(1) => { video.rating = None; video.likes -= 1 },
+                        Some(_) => { video.rating = Some(1); video.likes += 1; video.dislikes -= 1 }
                     }
                 }
             }
             Msg::DislikeClicked => {
                 if let Some(video) = self.video.as_mut() {
                     let id = video.id.clone();
-                    let rating = video.rating.clone();
                     spawn_local(async move {
-                        let should_dislike = match rating {
-                            None | Some(1) => true,
-                            Some(_) => false
-                        };
-                        match request_post::<bool,()>(format!("/videos/{}/dislike", id), should_dislike).await {
+                        match request_post::<(),RatingResponse>(format!("/videos/{}/dislike", id), ()).await {
                             Ok(_) => {}
                             Err(err) => debug!(err)
                         };
                     });
-                    video.rating = match video.rating {
-                        None | Some(1) => Some(-1),
-                        Some(_) => None
+                    match video.rating.clone() {
+                        None => { video.rating = Some(-1); video.dislikes += 1 },
+                        Some(-1) => { video.rating = None; video.dislikes -= 1 },
+                        Some(_) => { video.rating = Some(-1); video.dislikes += 1; video.likes -= 1 }
                     }
                 }
             }

@@ -1,12 +1,15 @@
+use crate::auth::check_role;
 use crate::error::category::resolve;
+use crate::error::Error;
 use crate::model::category::{from_categories, Category};
 use crate::repository::category_repository::CategoryRepository;
 use crate::PostgresCategoryRepository;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use shared_lib::payload::category::{
     GetCategoryResponse, PostCategoryRequest, PostCategoryResponse, PutCategoryRequest,
     PutCategoryResponse,
 };
+use shared_lib::token_validation::{Role, TokenValidator};
 use std::sync::Arc;
 
 #[actix_web::get("/categories/{id}")]
@@ -27,10 +30,24 @@ pub async fn get_category_by_id(
 #[actix_web::put("/categories/{id}")]
 pub async fn put_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     params: web::Path<i64>,
     category: web::Json<PutCategoryRequest>,
+    req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = category.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
     let id = params.into_inner();
+
+    let check = check_role(&req, token_validator, Role::Admin);
+    if let Err(error) = check {
+        return error;
+    }
 
     let response = data
         .update_category(id, Category::from(category.into_inner()))
@@ -45,8 +62,22 @@ pub async fn put_category(
 #[actix_web::post("/categories")]
 pub async fn post_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     category: web::Json<PostCategoryRequest>,
+    req: HttpRequest,
 ) -> impl Responder {
+    if let Err(e) = category.validate_content() {
+        return HttpResponse::BadRequest().json(Error {
+            code: 400,
+            message: e.to_string(),
+        });
+    }
+
+    let check = check_role(&req, token_validator, Role::Admin);
+    if let Err(error) = check {
+        return error;
+    }
+
     let response = data
         .create_category(Category::from(category.into_inner()))
         .await;
@@ -60,9 +91,16 @@ pub async fn post_category(
 #[actix_web::delete("/categories/{id}")]
 pub async fn delete_category(
     data: web::Data<Arc<PostgresCategoryRepository>>,
+    token_validator: web::Data<Arc<TokenValidator>>,
     params: web::Path<i64>,
+    req: HttpRequest,
 ) -> impl Responder {
     let id = params.into_inner();
+
+    let check = check_role(&req, token_validator, Role::Admin);
+    if let Err(error) = check {
+        return error;
+    }
 
     let response = data.delete_category(id).await;
 
@@ -77,7 +115,6 @@ pub async fn list_catgeories(data: web::Data<Arc<PostgresCategoryRepository>>) -
     let response = data.list_categories().await;
 
     match response {
-        // TODO: implement for vect
         Ok(categories) => HttpResponse::Ok().json(from_categories(categories)),
         Err(e) => resolve(e),
     }

@@ -1,3 +1,4 @@
+use std::cmp::Reverse;
 use gloo::console::debug;
 use shared_lib::payload::video::GetVideos;
 use yew::prelude::*;
@@ -32,7 +33,10 @@ impl Component for Videos {
         match msg {
             Msg::GetVideosResult(result) => {
                 match result {
-                    Ok(videos) => self.videos = videos,
+                    Ok(mut videos) => {
+                        videos.sort_by_key(|v| Reverse(v.views));
+                        self.videos = videos;
+                    },
                     Err(err) => debug!(err)
                 }
             }
@@ -48,7 +52,7 @@ impl Component for Videos {
         return html!(
             <>
             <h3 class={"title is-3"}>{"Trending videos "}<i class={"fab fa-hotjar has-text-warning"}></i></h3>
-            <div class={"columns"}>
+            <div class={"columns is-multiline"}>
             {
                 for self.videos.iter().map(|video|
                 {

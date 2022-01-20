@@ -9,7 +9,7 @@ version: '3.9'
 services:
 
   db:
-    container_name: db
+    container_name: pussyhub_db
     build: ./db
     image: postgres
     restart: always
@@ -30,16 +30,17 @@ services:
       timeout: 5s
       retries: 5
   adminer:
+    container_name: pussyhub_adminer
     image: adminer
     restart: always
     ports:
       - "8079:8080"
   smtp:
-    container_name: smtp
+    container_name: pussyhub_smtp
     image: bytemark/smtp
     restart: always
   auth:
-    container_name: auth
+    container_name: pussyhub_auth
     build:
       context: ./
       dockerfile: auth-service/Dockerfile
@@ -59,7 +60,7 @@ services:
       - 1935:1935
       - 8080:8080
   api:
-    container_name: api
+    container_name: pussyhub_api
     build:
       context: ./
       dockerfile: api-service/Dockerfile
@@ -71,7 +72,7 @@ services:
       db:
         condition: service_healthy
   client:
-    container_name: client
+    container_name: pussyhub_client
     build:
       context: ./
       dockerfile: client/Dockerfile

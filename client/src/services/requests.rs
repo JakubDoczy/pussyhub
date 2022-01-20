@@ -105,11 +105,13 @@ pub async fn request_put<B, T>(url: String, body: B) -> Result<T, Error>
     request(reqwest::Method::PUT, url, body).await
 }
 
+/*
 /// Set limit for pagination
 pub fn limit(count: u32, p: u32) -> String {
     let offset = if p > 0 { p * count } else { 0 };
     format!("limit={}&offset={}", count, offset)
 }
+*/
 
 /// Define all possible errors
 #[derive(thiserror::Error, Clone, Debug, PartialEq)]
