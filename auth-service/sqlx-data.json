@@ -54,20 +54,8 @@
       ]
     }
   },
-  "c49155fe1bfa281d5a461cac6b0de0913ac87d196edd6b489da9618980f35cf2": {
-    "query": "\n            UPDATE registered_user\n            SET verified = TRUE\n            WHERE id = $1\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Int8"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "f7c0db6d1983003b3aab6aa87b88b4bf408e4a4effce15cacee1a1d625caa1d3": {
-    "query": "\n            INSERT INTO registered_user (email, verified, username, password, user_role, created_at) \n            VALUES ($1, FALSE, $2, $3, 'user', $4)\n            RETURNING id\n            ",
+  "b2e46da951287c3354719ecc22190e9cd21ec821f9951036ab58355b3d0aefa1": {
+    "query": "\n            INSERT INTO registered_user (email, verified, username, password, user_role, created_at)\n            VALUES ($1, FALSE, $2, $3, 'user', $4)\n            RETURNING id\n            ",
     "describe": {
       "columns": [
         {
@@ -87,6 +75,18 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "c49155fe1bfa281d5a461cac6b0de0913ac87d196edd6b489da9618980f35cf2": {
+    "query": "\n            UPDATE registered_user\n            SET verified = TRUE\n            WHERE id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": []
     }
   }
 }
