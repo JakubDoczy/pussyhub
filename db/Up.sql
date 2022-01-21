@@ -48,9 +48,9 @@ COMMIT;
 BEGIN TRANSACTION;
 
 -- password = admin123
-INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$FQQfYhOUDWNcZxKc1g5k1XWgAEeX2xmSkgi5MImGrE4$BHBbwDBc3GLU4PhM1MK759ituIBNZBwnXSogj2CkR0k', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$PRr8jWxBenmhVZ2w1KSjoiRaN3JMRj3CjonwKI3T5jw$AnNSZ48O3+w9RuS41EIGTidZrdQFEFr/C/zHfPgEOo4', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
 -- password = user123
-INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$HpE3b/6hQlBVy02d+T6Ag4D8mwlGrZOEeDAHI7/pBy8$J6es0+aKVN7cVZ9RDlE4E3WBMoAkzJnwzKEs0oRhZ1c', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$krsZeYvPrcJgDboRpswLiNj3KP/B4jhhnqbOMjYNELI$E8x3ptBqo40XzarRkjJkqdZ9Cqgpd7M8Grx7SLq9ve0', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
 
 INSERT INTO category (name) VALUES ('Testing stuff');
 INSERT INTO category (name) VALUES ('Pussy');
