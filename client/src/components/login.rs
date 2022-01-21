@@ -1,7 +1,7 @@
 use shared_lib::error::auth::AuthError;
 use shared_lib::payload::auth::AuthPayload;
 use shared_lib::token_validation::SlimUser;
-use crate::services::auth::{is_auth, login, logout, user_info};
+use crate::services::auth::{hash_pass, is_auth, login, logout, user_info};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use ybc::InputType;
@@ -66,7 +66,7 @@ impl Component for Login {
 
                 let payload = AuthPayload {
                     email: self.email.clone(),
-                    password: blake3::hash(self.pass.clone().as_ref()).to_string()
+                    password: hash_pass(self.pass.clone())
                 };
 
                 let val = payload.validate_content();

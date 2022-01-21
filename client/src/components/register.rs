@@ -1,7 +1,7 @@
 use shared_lib::error::registration::RegistrationError;
 use shared_lib::payload::registration::UserRegistrationPayload;
 use shared_lib::token_validation::SlimUser;
-use crate::services::auth::{is_auth, register};
+use crate::services::auth::{hash_pass, is_auth, register};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use ybc::InputType;
@@ -81,7 +81,7 @@ impl Component for Register {
                 let payload = UserRegistrationPayload {
                     email: self.email.clone(),
                     username: self.username.clone(),
-                    password: blake3::hash(self.password.clone().as_ref()).to_string(),
+                    password: hash_pass(self.password.clone()),
                 };
 
                 let val = payload.validate_content();

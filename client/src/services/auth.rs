@@ -100,3 +100,8 @@ pub async fn confirm_email(confirmation_token: String) -> Result<String, EmailVe
     }
     Err(EmailVerificationError::UnexpectedError)
 }
+
+
+pub fn hash_pass(plaintext: String) -> String {
+    return blake3::hash(plaintext.as_bytes()).to_string()
+}
