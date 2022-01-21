@@ -212,7 +212,8 @@ impl Component for StartStream {
         };
 
         let category = self.category.as_ref().unwrap();
-        let stream_url = format!("{}/{}", *STREAM_ROOT, self.username);
+        let stream_url = format!("{}", *STREAM_ROOT);
+        let stream_key_show = format!("{}/{}", self.username, self.stream_key);
 
         html!(
             <>
@@ -231,7 +232,7 @@ impl Component for StartStream {
                 </ybc::Field>
                 <ybc::Field>
                     <label class={"label"}>{"Stream Key"}</label>
-                    <code>{self.stream_key.clone()}</code>
+                    <code>{stream_key_show.clone()}</code>
                     <p>{"Use this as the stream key. Do NOT share the stream key with anyone!"}</p>
                 </ybc::Field>
                 <ybc::Field>
