@@ -81,7 +81,7 @@ impl Component for Register {
                 let payload = UserRegistrationPayload {
                     email: self.email.clone(),
                     username: self.username.clone(),
-                    password: self.password.clone(),
+                    password: blake3::hash(self.password.clone().as_ref()).to_string(),
                 };
 
                 let val = payload.validate_content();

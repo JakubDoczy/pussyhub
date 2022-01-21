@@ -66,7 +66,7 @@ impl Component for Login {
 
                 let payload = AuthPayload {
                     email: self.email.clone(),
-                    password: self.pass.clone()
+                    password: blake3::hash(self.pass.clone().as_ref()).to_string()
                 };
 
                 let val = payload.validate_content();
