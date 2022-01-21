@@ -47,10 +47,11 @@ COMMIT;
 
 BEGIN TRANSACTION;
 
+-- password = admin123
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$FQQfYhOUDWNcZxKc1g5k1XWgAEeX2xmSkgi5MImGrE4$BHBbwDBc3GLU4PhM1MK759ituIBNZBwnXSogj2CkR0k', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
+-- password = user123
+INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, '$argon2i$v=19$m=4096,t=3,p=1$HpE3b/6hQlBVy02d+T6Ag4D8mwlGrZOEeDAHI7/pBy8$J6es0+aKVN7cVZ9RDlE4E3WBMoAkzJnwzKEs0oRhZ1c', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
 
-INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('admin@pussyhub.com', TRUE, 'admin', 'admin', 'Administrator', 'I am an administrator.', '2016-06-22 19:10:25-07');
-INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('user@user.com', TRUE, 'user', 'user', 'User', 'I am a user.', '2016-06-22 19:10:25-07');
-INSERT INTO registered_user (email, verified, password, user_role, username, description, created_at) VALUES ('newuser@user.com', FALSE, 'user', 'user', 'Unverified User', 'I am unverified user.', '2016-06-22 19:10:25-07');
 INSERT INTO category (name) VALUES ('Testing stuff');
 INSERT INTO category (name) VALUES ('Pussy');
 INSERT INTO video (creator_id, category_id, name, preview_url, video_url, views, likes, dislikes, created_at, state) VALUES (1, 1, 'My first video', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Big.Buck.Bunny.-.Opening.Screen.png/1200px-Big.Buck.Bunny.-.Opening.Screen.png', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', 0, 0, 0, '2021-06-22 19:10:25-07', 'published');

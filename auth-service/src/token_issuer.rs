@@ -9,7 +9,7 @@ use shared_lib::token_validation::{CustomClaims, SlimUser};
 
 pub const DEFAULT_VALIDITY_DURATION_SEC: u64 = 24 * 60 * 60;
 
-/// Structure that holds an encodeing key that
+/// Structure that holds an encoding key that
 /// may be used to sign data.
 #[derive(Clone)]
 pub struct TokenIssuer {
@@ -21,8 +21,7 @@ impl TokenIssuer {
     pub fn from_rsa_pem(rsa_pem_file: &'static str) -> Result<Self, Error> {
         Ok(Self { private_key: RS256KeyPair::from_pem(rsa_pem_file)? })
     }
-
-
+    
     /// Encodes any serializable data.
     pub fn encode<T: DeserializeOwned + Serialize>(
         &self,
