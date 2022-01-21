@@ -108,6 +108,7 @@ impl Component for Nav {
                 </ul>
                 { creator_menu }
                 { admin_menu }
+            /*
                 <p class="menu-label">
                   {"Categories"}
                 </p>
@@ -118,6 +119,7 @@ impl Component for Nav {
                   <li><span class="tag is-white is-medium">{"Animi"}</span></li>
                   <li><span class="tag is-white is-medium">{"Eximi"}</span></li>
                 </ul>
+            */
             </div>
         };
     }
