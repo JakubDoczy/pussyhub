@@ -3,10 +3,25 @@ use shared_lib::token_validation::{Role, SlimUser};
 use serde::{Serialize, Deserialize};
 use sqlx::PgPool;
 use std::sync::Arc;
+use rand::Rng;
+use argon2;
+
+use anyhow::{Error, bail};
 
 use shared_lib::payload::registration::UserRegistrationPayload;
 
 use crate::database::error::{DBAuthError, DBEmailVerificationError, DBRegistrationError};
+
+fn rehash_password(password: &str) -> Result<String, Error> {
+    let salt: [u8; 32] = rand::thread_rng().gen();
+    let config = argon2::Config::default();
+
+    let new_password = match argon2::hash_encoded(password.as_bytes(), &salt, &config) {
+        Ok(passwd) => passwd,
+        Err(e) => bail!("Failed to hash password with salt, {:?}", e)
+    };
+    Ok(new_password)
+}
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
 #[sqlx(type_name = "role", rename_all = "snake_case")]
@@ -56,7 +71,7 @@ impl PostgresUserRepo {
                     email: email.to_string(),
                     role: Role::from(user.user_role),
                 },
-                user.password,
+                user.password
             )),
             Err(e) => match e {
                 sqlx::Error::RowNotFound => Err(DBAuthError::UserDoesNotExist(email.to_string())),
@@ -71,17 +86,24 @@ impl PostgresUserRepo {
         payload: &UserRegistrationPayload,
     ) -> Result<SlimUser, DBRegistrationError> {
         // RegistrationError
-        println!("Sending query");
+        //println!("Sending query");
+
+        let rehashed_password = match rehash_password(&payload.password) {
+            Ok(s) => s,
+            Err(e) => {
+                return Err(DBRegistrationError::UnexpectedError(format!("Failed to rehash password: {:?}", e)));
+            }
+        };
 
         let rec = sqlx::query!(
             r#"
-            INSERT INTO registered_user (email, verified, username, password, user_role, created_at) 
+            INSERT INTO registered_user (email, verified, username, password, user_role, created_at)
             VALUES ($1, FALSE, $2, $3, 'user', $4)
             RETURNING id
             "#,
             payload.email,
             payload.username,
-            payload.password,
+            rehashed_password,
             Utc::now()
         )
         .fetch_one(&*self.pg_pool)
