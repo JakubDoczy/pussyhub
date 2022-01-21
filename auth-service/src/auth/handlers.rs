@@ -15,6 +15,23 @@ macro_rules! shared_call {
     };
 }
 
+enum PasswordVerificationResult {
+    Success,
+    InvalidEncodedPassword,
+    WrongPassword
+}
+
+fn verify_password(encoded_password: &str, received_password: &[u8]) -> PasswordVerificationResult {
+    match argon2::verify_encoded(encoded_password, received_password) {
+        Ok(true) => PasswordVerificationResult::Success,
+        Ok(false) => PasswordVerificationResult::WrongPassword,
+        Err(e) => {
+            error!("Invalid password stored in database: {:?}", e);
+            return PasswordVerificationResult::InvalidEncodedPassword;
+        }
+    }
+}
+
 
 /// Handles authentication requests.
 /// If successful, returns JSON Web Token.
@@ -34,22 +51,29 @@ pub(crate) async fn auth_handler(
         shared_call!(service_data, user_repo, get_slim_user(&auth_payload.email)).await;
 
     match auth_result {
-        Ok((slim_user, hash)) => {
-            if argon2::verify_encoded(&hash, auth_payload.password.as_bytes()).expect("Internal error, argon failed.") {
-                let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
-                match token_result {
-                    Ok(token) => {
-                        debug!("Successfully created token: {:?}", token);
-                        HttpResponse::Ok().content_type("application/jwt").body(token)
+        Ok((slim_user, encoded_password)) => {
+
+            match verify_password(&encoded_password, auth_payload.password.as_bytes()) {
+                PasswordVerificationResult::Success => {
+                    let token_result = shared_call!(service_data, token_issuer, issue_token(slim_user));
+                    match token_result {
+                        Ok(token) => {
+                            debug!("Successfully created token: {:?}", token);
+                            HttpResponse::Ok().content_type("application/jwt").body(token)
+                        }
+                        Err(e) => {
+                            error!("Error, failed to issue token {:?}", e);
+                            HttpResponse::InternalServerError().json(AuthError::UnexpectedError)
+                        }
                     }
-                    Err(e) => {
-                        error!("Error, failed to issue token {:?}", e);
-                        HttpResponse::InternalServerError().json(AuthError::UnexpectedError)
-                    }
+                },
+                PasswordVerificationResult::InvalidEncodedPassword => {
+                    HttpResponse::InternalServerError().json(AuthError::UnexpectedError)
+                },
+                PasswordVerificationResult::WrongPassword => {
+                    debug!("Incorrect password for user {:?}", slim_user);
+                    HttpResponse::Unauthorized().json(AuthError::IncorrectPassword)
                 }
-            } else {
-                debug!("Incorrect password for user {:?}", slim_user);
-                HttpResponse::Unauthorized().json(AuthError::IncorrectPassword)
             }
         }
         Err(DBAuthError::UserDoesNotExist(email)) => {
