@@ -12,6 +12,6 @@ addr = "0.0.0.0"
 # The port to serve on.
 port = 5000
 # Open a browser tab once the initial build is complete.
-open = true
+open = false
 # Disable auto-reload of the web app.
 no_autoreload = false

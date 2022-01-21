@@ -13,3 +13,5 @@ target/
 
 # JetBrains ide
 .idea/
+.vscode
+Cargo.lock

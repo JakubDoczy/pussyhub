@@ -3,6 +3,8 @@ BEGIN TRANSACTION;
 CREATE TYPE role AS ENUM ('admin', 'user');
 CREATE TYPE video_state AS ENUM ('processing', 'published');
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE registered_user (
   id BIGSERIAL PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
@@ -12,7 +14,8 @@ CREATE TABLE registered_user (
   username TEXT NOT NULL UNIQUE,
   description TEXT,
   picture_url TEXT,
-  created_at TIMESTAMPTZ NOT NULL
+  created_at TIMESTAMPTZ NOT NULL,
+  stream_key TEXT DEFAULT gen_random_uuid()
 );
 
 CREATE TABLE category (
@@ -27,6 +30,20 @@ CREATE TABLE video (
   name TEXT NOT NULL,
   preview_url TEXT NOT NULL,
   video_url TEXT NOT NULL UNIQUE,
+  views INTEGER NOT NULL,
+  likes INTEGER NOT NULL,
+  dislikes INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  state video_state DEFAULT 'processing' NOT NULL
+);
+
+CREATE TABLE stream (
+  id BIGSERIAL PRIMARY KEY,
+  creator_id BIGINT NOT NULL REFERENCES registered_user(id),
+  category_id BIGINT NOT NULL REFERENCES category(id),
+  name TEXT NOT NULL,
+  preview_url TEXT NOT NULL,
+  stream_url TEXT NOT NULL UNIQUE,
   views INTEGER NOT NULL,
   likes INTEGER NOT NULL,
   dislikes INTEGER NOT NULL,

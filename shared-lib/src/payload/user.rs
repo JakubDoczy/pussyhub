@@ -1,5 +1,4 @@
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserResponse {
@@ -10,7 +9,8 @@ pub struct UserResponse {
     pub description: Option<String>,
     pub picture_url: Option<String>,
     pub created_at: String,
-    pub verified: bool
+    pub verified: bool,
+    pub stream_key: Option<String>,
 }
 
 pub type GetUserResponse = UserResponse;

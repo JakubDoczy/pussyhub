@@ -1,6 +1,6 @@
-use ::serde::{Deserialize, Serialize};
 use chrono::serde::ts_milliseconds;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use shared_lib::payload::user::UserResponse;
 use shared_lib::token_validation::{Role as SlimRole, SlimUser};
 
@@ -15,6 +15,7 @@ pub struct User {
     pub picture_url: Option<String>,
     #[serde(with = "ts_milliseconds")]
     pub created_at: DateTime<Utc>,
+    pub stream_key: Option<String>,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, sqlx::Type)]
@@ -36,6 +37,7 @@ impl From<User> for UserResponse {
             picture_url: user.picture_url,
             created_at: user.created_at.to_rfc3339(),
             verified: user.verified,
+            stream_key: user.stream_key,
         }
     }
 }
@@ -51,6 +53,7 @@ impl From<SlimUser> for User {
             description: None,
             picture_url: None,
             created_at: chrono::offset::Utc::now(),
+            stream_key: None,
         }
     }
 }

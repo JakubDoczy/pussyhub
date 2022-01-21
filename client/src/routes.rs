@@ -4,17 +4,19 @@ use yew_router::Switch;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
-use crate::components::home::Home;
-use crate::components::login::Login;
-use crate::components::register::Register;
-use crate::components::email_confirmation::EmailConfirmation;
-use crate::components::main_layout::MainLayout;
-use crate::components::livestreams::Livestreams;
-use crate::components::videos::Videos;
-use crate::components::video::Video;
 use crate::components::admin::categories::EditCategories;
-use crate::components::creator::my_videos::MyVideos;
 use crate::components::creator::edit_video::EditVideo;
+use crate::components::creator::my_videos::MyVideos;
+use crate::components::creator::start_stream::StartStream;
+use crate::components::email_confirmation::EmailConfirmation;
+use crate::components::home::Home;
+use crate::components::livestreams::Streams;
+use crate::components::login::Login;
+use crate::components::main_layout::MainLayout;
+use crate::components::register::Register;
+use crate::components::stream::Stream;
+use crate::components::video::Video;
+use crate::components::videos::Videos;
 use crate::State;
 
 pub struct AppRouter {
@@ -47,15 +49,16 @@ impl Component for AppRouter {
                         AppRoute::Login => html! { <WithDispatch<Login> /> },
                         AppRoute::Register => html! { <WithDispatch<Register> />  },
                         AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> },
-                        AppRoute::Livestreams => html! { <MainLayout> <Livestreams /> </MainLayout> },
+                        AppRoute::Livestreams => html! { <MainLayout> <Streams /> </MainLayout> },
                         AppRoute::Videos => html! { <MainLayout> <Videos /> </MainLayout> },
                         AppRoute::Creators => html! { <MainLayout> {"tbd"} </MainLayout> },
                         AppRoute::EditCategories => html! { <MainLayout> <EditCategories /> </MainLayout> },
                         AppRoute::WatchVideo(id) => html! { <MainLayout> <Video id={id} /> </MainLayout> },
+                        AppRoute::WatchStream(id) => html! { <MainLayout> <Stream id={id} /> </MainLayout> },
                         AppRoute::CreatorVideos => html! { <MainLayout> <MyVideos /> </MainLayout> },
                         AppRoute::UploadVideo => html! { <MainLayout> <EditVideo /> </MainLayout> },
                         AppRoute::EditVideo(id) => html! { <MainLayout> <EditVideo video_id={id} /> </MainLayout> },
-
+                        AppRoute::StartStream => html ! { <MainLayout> <StartStream /> </MainLayout> }
                     }
                 })
             />
@@ -79,6 +82,8 @@ pub enum AppRoute {
     Creators,
     #[to = "/creator/videos/upload"]
     UploadVideo,
+    #[to = "/creator/streams/start"]
+    StartStream,
     #[to = "/creator/videos/edit/{id}"]
     EditVideo(i64),
     #[to = "/creator/videos"]
@@ -87,6 +92,8 @@ pub enum AppRoute {
     EditCategories,
     #[to = "/watch/video/{id}"]
     WatchVideo(i64),
+    #[to = "/watch/stream/{id}"]
+    WatchStream(i64),
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]

@@ -80,6 +80,7 @@ impl Component for MyVideos {
 
                      <div class="block">
                          <AppAnchor classes="button is-primary" route=AppRoute::UploadVideo>{"Upload new"}</AppAnchor>
+                         <AppAnchor classes="button is-primary" route=AppRoute::StartStream>{"Start stream"}</AppAnchor>
                      </div>
                      <div>
                      {

@@ -35,7 +35,8 @@ impl UserRepository for PostgresUserRepository {
                 username,
                 description,
                 picture_url,
-                created_at
+                created_at,
+                stream_key
             FROM registered_user
             WHERE id = $1
             "#,

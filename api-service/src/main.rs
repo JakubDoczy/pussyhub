@@ -16,6 +16,7 @@ mod repository;
 use crate::repository::category_repository::PostgresCategoryRepository;
 use crate::repository::user_repository::PostgresUserRepository;
 use crate::repository::video_repository::PostgresVideoRepository;
+use crate::repository::stream_repository::PostgresStreamRepository;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -34,6 +35,7 @@ async fn main() -> std::io::Result<()> {
     );
 
     let video_repository = Arc::new(PostgresVideoRepository::new(pool.clone()));
+    let stream_repository = Arc::new(PostgresStreamRepository::new(pool.clone()));
     let category_repository = Arc::new(PostgresCategoryRepository::new(pool.clone()));
     let user_repository = Arc::new(PostgresUserRepository::new(pool.clone()));
 
@@ -50,6 +52,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(video_repository.clone()))
+            .app_data(web::Data::new(stream_repository.clone()))
             .app_data(web::Data::new(category_repository.clone()))
             .app_data(web::Data::new(user_repository.clone()))
             .app_data(web::Data::new(token_validator.clone()))
@@ -62,6 +65,13 @@ async fn main() -> std::io::Result<()> {
                     .service(endpoint::video::list_videos)
                     .service(endpoint::video::list_videos_in_category)
                     .service(endpoint::video::list_videos_by_user)
+                    .service(endpoint::stream::get_stream_by_id)
+                    .service(endpoint::stream::put_stream_by_id)
+                    .service(endpoint::stream::post_stream)
+                    .service(endpoint::stream::delete_stream)
+                    .service(endpoint::stream::list_streams)
+                    .service(endpoint::stream::list_streams_in_category)
+                    .service(endpoint::stream::list_streams_by_user)
                     .service(endpoint::category::get_category_by_id)
                     .service(endpoint::category::put_category)
                     .service(endpoint::category::post_category)

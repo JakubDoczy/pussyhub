@@ -18,6 +18,7 @@ use crate::application_data::ApplicationData;
 use crate::auth::handlers::auth_handler;
 use crate::database::user_repo::PostgresUserRepo;
 use crate::registration::handlers::{confirmation_handler, registration_handler};
+use crate::stream_auth::handlers::stream_auth_handler;
 use crate::token_issuer::TokenIssuer;
 
 mod application_data;
@@ -25,6 +26,7 @@ mod auth;
 mod database;
 mod registration;
 mod token_issuer;
+mod stream_auth;
 
 
 async fn initialize_user_repo() -> PostgresUserRepo {
@@ -76,10 +78,10 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/auth")
                     .route("/login", web::post().to(auth_handler))
+                    .route("/stream", web::post().to(stream_auth_handler))
                     .route("/registration", web::post().to(registration_handler))
                     .route("/confirmation/{token}", web::get().to(confirmation_handler))
             )
-
         //.route("/registration", web::post().to(registration_handler))
     })
     .bind(address)?
