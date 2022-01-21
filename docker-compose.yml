@@ -9,7 +9,7 @@ version: '3.9'
 services:
 
   db:
-    container_name: db
+    container_name: pussyhub_db
     build: ./db
     image: postgres
     restart: always
@@ -21,7 +21,7 @@ services:
 #    expose:
 #      - 5432
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
     healthcheck:
@@ -30,36 +30,50 @@ services:
       timeout: 5s
       retries: 5
   adminer:
+    container_name: pussyhub_adminer
     image: adminer
     restart: always
     ports:
-      - 8079:8079
+      - "127.0.0.1:8079:8080"
   smtp:
-    container_name: smtp
-    image: rnwood/smtp4dev:v3
+    container_name: pussyhub_smtp
+    image: bytemark/smtp
     restart: always
-    ports:
-      - 3000:80
-      - 2525:25
   auth:
-    container_name: auth
+    container_name: pussyhub_auth
     build:
       context: ./
       dockerfile: auth-service/Dockerfile
+    env_file:
+      - ./.env
     ports:
-      - 8089:8089
+      - "127.0.0.1:8089:8089"
     depends_on:
       smtp:
         condition: service_started
       db:
         condition: service_healthy
+  api:
+    container_name: pussyhub_api
+    build:
+      context: ./
+      dockerfile: api-service/Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
   client:
-    container_name: client
+    container_name: pussyhub_client
     build:
       context: ./
       dockerfile: client/Dockerfile
+    env_file:
+      - ./.env
     ports:
-      - 5100:5000
+      - "127.0.0.1:5100:5000"
     depends_on:
       db:
         condition: service_healthy

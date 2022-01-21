@@ -1,10 +1,11 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationErrors};
 
-use super::{rating::Rating, category::Category};
+use super::category::CategoryResponse;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Video {
-    pub id: Option<i64>,
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VideoResponse {
+    pub id: i64,
     pub creator_id: i64,
     pub name: String,
     pub preview_url: String,
@@ -13,16 +14,32 @@ pub struct Video {
     pub likes: i32,
     pub dislikes: i32,
     pub created_at: String,
-    pub rating: Rating,
-    pub category: Category
+    pub rating: Option<i16>,
+    pub category: CategoryResponse,
 }
 
-pub type GetVideoResponse = Video;
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct VideoRequest {
+    pub creator_id: i64,
+    #[validate(length(min = 1, message = "min length for name is 1"))]
+    pub name: String,
+    pub preview_url: String,
+    pub video_url: String,
+    pub category: i64,
+}
 
-pub type PutVideoRequest = Video;
-pub type PutVideoResponse = Video;
+pub type GetVideoResponse = VideoResponse;
 
-pub type PostVideoRequest = Video;
-pub type PostVideoResponse = Video;
+pub type PutVideoRequest = VideoRequest;
+pub type PutVideoResponse = VideoResponse;
 
-pub type GetVideos = Vec<Video>;
+pub type PostVideoRequest = VideoRequest;
+pub type PostVideoResponse = VideoResponse;
+
+pub type GetVideos = Vec<VideoResponse>;
+
+impl VideoRequest {
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}

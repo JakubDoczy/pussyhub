@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM rust:latest as builder
 
 # local dependency files, everything will be rebuild if changed
 WORKDIR /pussyhub/
@@ -16,8 +16,8 @@ RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 WORKDIR /pussyhub/
 COPY . .
 WORKDIR /pussyhub/auth-service
+ENV SQLX_OFFLINE=1
+RUN cargo build
 
 EXPOSE 8089
-
-# lazy way for sqlx to have a running database during build
-ENTRYPOINT cargo run
+ENTRYPOINT ["/pussyhub/auth-service/target/debug/auth_service"]

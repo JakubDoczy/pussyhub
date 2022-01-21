@@ -59,10 +59,12 @@ impl Component for Header {
                                         {
                                             if is_auth() { html!(
                                                 <>
-                                                    { user.username }
-                                                    <a classes="button is-light" onclick={self.link.callback(|_| Msg::Logout)}>
+
+                                                    <button class="button" style="pointer-events: none;">{ user.username }</button>
+                                                    <button class="button is-light"><span class="icon"><i class="fas fa-cog"></i></span></button>
+                                                    <button class="button is-light" onclick={self.link.callback(|_| Msg::Logout)}>
                                                         {"Log out"}
-                                                    </a>
+                                                    </button>
                                                 </>
                                             )}
                                             else { html!(

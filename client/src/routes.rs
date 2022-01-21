@@ -9,6 +9,12 @@ use crate::components::login::Login;
 use crate::components::register::Register;
 use crate::components::email_confirmation::EmailConfirmation;
 use crate::components::main_layout::MainLayout;
+use crate::components::livestreams::Livestreams;
+use crate::components::videos::Videos;
+use crate::components::video::Video;
+use crate::components::admin::categories::EditCategories;
+use crate::components::creator::my_videos::MyVideos;
+use crate::components::creator::edit_video::EditVideo;
 use crate::State;
 
 pub struct AppRouter {
@@ -40,7 +46,16 @@ impl Component for AppRouter {
                         AppRoute::PageNotFound => html! { <h1> {"Page not found"} </h1> },
                         AppRoute::Login => html! { <WithDispatch<Login> /> },
                         AppRoute::Register => html! { <WithDispatch<Register> />  },
-                        AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> }
+                        AppRoute::EmailConfirmation(token) => html! { <EmailConfirmation confirmation_token={token.clone()} /> },
+                        AppRoute::Livestreams => html! { <MainLayout> <Livestreams /> </MainLayout> },
+                        AppRoute::Videos => html! { <MainLayout> <Videos /> </MainLayout> },
+                        AppRoute::Creators => html! { <MainLayout> {"tbd"} </MainLayout> },
+                        AppRoute::EditCategories => html! { <MainLayout> <EditCategories /> </MainLayout> },
+                        AppRoute::WatchVideo(id) => html! { <MainLayout> <Video id={id} /> </MainLayout> },
+                        AppRoute::CreatorVideos => html! { <MainLayout> <MyVideos /> </MainLayout> },
+                        AppRoute::UploadVideo => html! { <MainLayout> <EditVideo /> </MainLayout> },
+                        AppRoute::EditVideo(id) => html! { <MainLayout> <EditVideo video_id={id} /> </MainLayout> },
+
                     }
                 })
             />
@@ -48,7 +63,7 @@ impl Component for AppRouter {
     }
 }
 
-#[derive(Debug, Clone, Switch)]
+#[derive(Debug, Clone, Switch, PartialEq)]
 pub enum AppRoute {
     #[to = "/login"]
     Login,
@@ -56,6 +71,22 @@ pub enum AppRoute {
     Register,
     #[to = "/email_confirmation/{confirmation_token}"]
     EmailConfirmation(String),
+    #[to = "/livestreams"]
+    Livestreams,
+    #[to = "/videos"]
+    Videos,
+    #[to = "/creators"]
+    Creators,
+    #[to = "/creator/videos/upload"]
+    UploadVideo,
+    #[to = "/creator/videos/edit/{id}"]
+    EditVideo(i64),
+    #[to = "/creator/videos"]
+    CreatorVideos,
+    #[to = "/adm/categories"]
+    EditCategories,
+    #[to = "/watch/video/{id}"]
+    WatchVideo(i64),
     #[to = "/page-not-found"]
     PageNotFound,
     #[to = "/!"]

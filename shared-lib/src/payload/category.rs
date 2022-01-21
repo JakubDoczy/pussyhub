@@ -1,17 +1,39 @@
 use serde::{Deserialize, Serialize};
+use validator::{Validate, ValidationErrors};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Category {
-    pub id: Option<i64>,
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Validate)]
+pub struct CategoryResponse {
+    pub id: i64,
+    #[validate(length(min = 1, max = 255, message = "Category name must not be empty"))]
     pub name: String
 }
 
-pub type GetCategoryResponse = Category;
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct CategoryRequest {
+    #[validate(length(min = 1, max = 255, message = "Category name must not be empty"))]
+    pub name: String
+}
 
-pub type PutCategoryRequest = Category;
-pub type PutCategoryResponse = Category;
+pub type GetCategoryResponse = CategoryResponse;
 
-pub type PostCategoryRequest = Category;
-pub type PostCategoryResponse = Category;
+pub type PutCategoryRequest = CategoryRequest;
+pub type PutCategoryResponse = CategoryResponse;
 
-pub type GetCategories = Vec<Category>;
+pub type PostCategoryRequest = CategoryRequest;
+pub type PostCategoryResponse = CategoryResponse;
+
+pub type GetCategoriesResponse = Vec<CategoryResponse>;
+
+impl CategoryRequest {
+
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}
+
+impl CategoryResponse {
+
+    pub fn validate_content(&self) -> Result<(), ValidationErrors> {
+        self.validate()
+    }
+}

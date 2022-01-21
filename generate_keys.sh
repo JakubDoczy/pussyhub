@@ -9,4 +9,8 @@ mv private.pem auth-service/resources/
 # move/copy to the other serrvices
 mkdir -p client/resources/
 cp public.pem client/resources/
+
+mkdir -p api-service/resources/
+cp public.pem api-service/resources/
+
 mv public.pem auth-service/resources/
